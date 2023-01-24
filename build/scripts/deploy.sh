@@ -4,7 +4,7 @@ source ${DTK_HOME}/lib/helm.sh
 
 NAMESPACE=tagd
 
-API_REGISTRY=docker.totallydev.com/tagd/affiliates/api
+API_REGISTRY=docker.totallydev.com/tagd/api
 
 if [[ ${ENV} == "production" ]]; then
   image_tag=${CI_COMMIT_TAG}
@@ -18,7 +18,7 @@ else
   release="api-${ENV}"
   kube_config=${KUBE_CONFIG_UAT}
   env_secret="api-env-${ENV}"
-  migrations_secret="api-migrations-env-${ENV}"
+  migrations_secret="api-env-${ENV}"
   service_account_name=""
 fi
 
