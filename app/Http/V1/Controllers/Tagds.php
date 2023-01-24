@@ -3,7 +3,9 @@
 namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\Tagd\Index as IndexRequest;
+use App\Http\V1\Requests\Tagd\Update as UpdateRequest;
 use App\Http\V1\Resources\Item\Tagd\Collection as TagdsCollection;
+use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
 use Illuminate\Routing\Controller as BaseController;
 use Tagd\Core\Repositories\Interfaces\Actors\Retailers as RetailersRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
@@ -35,6 +37,25 @@ class Tagds extends BaseController
 
         return response()->withData(
             new TagdsCollection($tagds)
+        );
+    }
+
+    public function update(
+        TagdsRepo $tagdsRepo,
+        UpdateRequest $request,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        if ($request->has(UpdateRequest::IS_ACTIVE)) {
+            if ($request->get(UpdateRequest::IS_ACTIVE)) {
+                $tagd->activate();
+                $tagd->refresh();
+            }
+        }
+
+        return response()->withData(
+            new TagdSingle($tagd)
         );
     }
 }
