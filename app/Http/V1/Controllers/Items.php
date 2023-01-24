@@ -4,11 +4,15 @@ namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\Item\Index as IndexRequest;
 use App\Http\V1\Requests\Item\Store as StoreRequest;
+use App\Http\V1\Requests\Item\Update as UpdateRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
+use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
 use Illuminate\Routing\Controller as BaseController;
+use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
 use Tagd\Core\Repositories\Interfaces\Actors\Retailers as RetailersRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
+use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
 class Items extends BaseController
 {
@@ -48,6 +52,8 @@ class Items extends BaseController
     public function store(
         ItemsRepo $itemsRepo,
         RetailersRepo $retailersRepo,
+        ConsumersRepo $consumersRepo,
+        TagdsRepo $tagdsRepo,
         StoreRequest $request
     ) {
         $retailerId = $this->findRetailerByName(
@@ -63,6 +69,18 @@ class Items extends BaseController
             'properties' => $request->get(StoreRequest::PROPERTIES, []),
         ]);
 
+        $consumer = $consumersRepo->create([
+            'name' => $request->get(StoreRequest::CONSUMER, ''),
+        ]);
+
+        $tagdsRepo->create([
+            'item_id' => $item->id,
+            'consumer_id' => $consumer->id,
+            'meta' => [
+                'transaction' => $request->get(StoreRequest::TRANSACTION, ''),
+            ],
+        ]);
+
         return response()->withData(
             new ItemSingle($item)
         );
@@ -76,6 +94,25 @@ class Items extends BaseController
 
         return response()->withData(
             new ItemSingle($item)
+        );
+    }
+
+    public function update(
+        TagdsRepo $tagdsRepo,
+        UpdateRequest $request,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        if ($request->has(UpdateRequest::IS_ACTIVE)) {
+            if ($request->get(UpdateRequest::IS_ACTIVE)) {
+                $tagd->activate();
+                $tagd->refresh();
+            }
+        }
+
+        return response()->withData(
+            new TagdSingle($tagd)
         );
     }
 

@@ -19,7 +19,7 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         // --------------------------------------------------------------------
 
         Route::resource('items', 'Items')->only([
-            'index', 'store', 'show',
+            'index', 'store', 'show', 'update',
         ]);
 
         Route::resource('tagds', 'Tagds')->only([

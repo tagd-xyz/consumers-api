@@ -22,6 +22,7 @@ class Single extends JsonResource
             'consumer' => new ConsumerSingle($this->whenLoaded('consumer')),
             'consumer' => new ConsumerSingle($this->consumer),
             'item' => new ItemSingle($this->whenLoaded('item')),
+            'meta' => $this->meta,
             'createdAt' => $this->created_at,
             'activatedAt' => $this->activated_at,
         ];
