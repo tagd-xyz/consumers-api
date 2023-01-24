@@ -11,8 +11,20 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         // Status
         // --------------------------------------------------------------------
 
-        Route::get('status', 'StatusController@index')
+        Route::get('status', 'Status@index')
             ->name('status');
+
+        // --------------------------------------------------------------------
+        // Items
+        // --------------------------------------------------------------------
+
+        Route::resource('items', 'Items')->only([
+            'index', 'store', 'show', 'update',
+        ]);
+
+        Route::resource('tagds', 'Tagds')->only([
+            'index',
+        ]);
     });
 
     Route::middleware(['auth:api', 'log.user'])->group(function () {

@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Http\V1\Controllers;
+
+use App\Http\V1\Requests\Item\Index as IndexRequest;
+use App\Http\V1\Requests\Item\Store as StoreRequest;
+use App\Http\V1\Requests\Item\Update as UpdateRequest;
+use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
+use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
+use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
+use Illuminate\Routing\Controller as BaseController;
+use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
+use Tagd\Core\Repositories\Interfaces\Actors\Retailers as RetailersRepo;
+use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
+use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
+
+class Items extends BaseController
+{
+    /**
+     * Get basic status info
+     *
+     * @return Illuminate\Http\JsonResponse
+     */
+    public function index(
+        ItemsRepo $itemsRepo,
+        RetailersRepo $retailersRepo,
+        IndexRequest $request
+    ) {
+        $retailerId = $this->findRetailerByName(
+            $retailersRepo,
+            $request->get(IndexRequest::RETAILER, null)
+        );
+
+        $items = $itemsRepo->allPaginated([
+            'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
+            'page' => $request->get(IndexRequest::PAGE, 1),
+            'orderBy' => 'created_at',
+            'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
+            'relations' => ['tagds'],
+            'filterFunc' => function ($query) use ($retailerId) {
+                return is_null($retailerId)
+                    ? $query
+                    : $query->where('retailer_id', $retailerId);
+            },
+        ]);
+
+        return response()->withData(
+            new ItemCollection($items)
+        );
+    }
+
+    public function store(
+        ItemsRepo $itemsRepo,
+        RetailersRepo $retailersRepo,
+        ConsumersRepo $consumersRepo,
+        TagdsRepo $tagdsRepo,
+        StoreRequest $request
+    ) {
+        $retailerId = $this->findRetailerByName(
+            $retailersRepo,
+            $request->get(StoreRequest::RETAILER, null)
+        );
+
+        $item = $itemsRepo->create([
+            'retailer_id' => $retailerId,
+            'name' => $request->get(StoreRequest::NAME, 'Unknown'),
+            'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
+            'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
+            'properties' => $request->get(StoreRequest::PROPERTIES, []),
+        ]);
+
+        $consumer = $consumersRepo->create([
+            'name' => $request->get(StoreRequest::CONSUMER, ''),
+        ]);
+
+        $tagdsRepo->create([
+            'item_id' => $item->id,
+            'consumer_id' => $consumer->id,
+            'meta' => [
+                'transaction' => $request->get(StoreRequest::TRANSACTION, ''),
+            ],
+        ]);
+
+        return response()->withData(
+            new ItemSingle($item)
+        );
+    }
+
+    public function show(
+        ItemsRepo $itemsRepo,
+        string $itemId
+    ) {
+        $item = $itemsRepo->findById($itemId);
+
+        return response()->withData(
+            new ItemSingle($item)
+        );
+    }
+
+    public function update(
+        TagdsRepo $tagdsRepo,
+        UpdateRequest $request,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        if ($request->has(UpdateRequest::IS_ACTIVE)) {
+            if ($request->get(UpdateRequest::IS_ACTIVE)) {
+                $tagd->activate();
+                $tagd->refresh();
+            }
+        }
+
+        return response()->withData(
+            new TagdSingle($tagd)
+        );
+    }
+
+    private function findRetailerByName(RetailersRepo $repo, string $name = null): ?string
+    {
+        return is_null($name)
+            ? null
+            : $repo->all([
+                'filterFunc' => function ($query) use ($name) {
+                    return $query->where('name', $name);
+                },
+            ])->first()->id;
+    }
+}
