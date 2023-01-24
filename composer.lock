@@ -5434,16 +5434,16 @@
         },
         {
             "name": "tagd/core",
-            "version": "0.0.6",
+            "version": "0.0.7",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.totallydev.com/tagd/packages/core.git",
-                "reference": "02f9b39e4d6c822bd287ccaa2f70f2fd577d3929"
+                "reference": "f3bd768f1a5c8aad92e10a7c95a404717fecd817"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.totallydev.com/api/v4/projects/1094/packages/composer/archives/tagd/core.zip?sha=02f9b39e4d6c822bd287ccaa2f70f2fd577d3929",
-                "reference": "02f9b39e4d6c822bd287ccaa2f70f2fd577d3929",
+                "url": "https://gitlab.totallydev.com/api/v4/projects/1094/packages/composer/archives/tagd/core.zip?sha=f3bd768f1a5c8aad92e10a7c95a404717fecd817",
+                "reference": "f3bd768f1a5c8aad92e10a7c95a404717fecd817",
                 "shasum": ""
             },
             "require": {
@@ -5469,7 +5469,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Tagd\\Core\\": "src/code/",
+                    "Tagd\\Core\\": "src/code/core",
                     "Tagd\\Core\\Tests\\Traits\\": "tests/Traits/",
                     "Tagd\\Core\\Database\\Seeders\\": "src/database/seeders/",
                     "Tagd\\Core\\Database\\Factories\\": "src/database/factories/"
@@ -5489,7 +5489,8 @@
                 ],
                 "pint_check": [
                     "vendor/bin/pint --test"
-                ]
+                ],
+                "pre-autoload-dump": []
             },
             "authors": [
                 {
