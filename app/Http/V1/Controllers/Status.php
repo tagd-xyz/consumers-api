@@ -4,7 +4,7 @@ namespace App\Http\V1\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 
-class StatusController extends BaseController
+class Status extends BaseController
 {
     /**
      * Get basic status info
