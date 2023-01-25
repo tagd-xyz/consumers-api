@@ -7,7 +7,6 @@ use App\Http\V1\Requests\Item\Store as StoreRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
 use Illuminate\Routing\Controller as BaseController;
-use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
@@ -53,7 +52,6 @@ class Items extends BaseController
 
     public function store(
         ItemsRepo $itemsRepo,
-        ConsumersRepo $consumersRepo,
         TagdsRepo $tagdsRepo,
         StoreRequest $request
     ) {
@@ -67,13 +65,9 @@ class Items extends BaseController
             'properties' => $request->get(StoreRequest::PROPERTIES, []),
         ]);
 
-        $consumer = $consumersRepo->create([
-            'name' => $request->get(StoreRequest::CONSUMER, ''),
-        ]);
-
         $tagdsRepo->create([
             'item_id' => $item->id,
-            'consumer_id' => $consumer->id,
+            'consumer_id' => $request->get(StoreRequest::CONSUMER_ID),
             'meta' => [
                 'transaction' => $request->get(StoreRequest::TRANSACTION, ''),
             ],

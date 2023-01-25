@@ -16,7 +16,7 @@ class Store extends FormRequest
 
     public const PROPERTIES = 'properties';
 
-    public const CONSUMER = 'consumer';
+    public const CONSUMER_ID = 'consumerId';
 
     public const TRANSACTION = 'transaction';
 
@@ -33,7 +33,7 @@ class Store extends FormRequest
             self::DESCRIPTION => 'string|required',
             self::TYPE => 'string|required',
             self::PROPERTIES => 'array',
-            self::CONSUMER => 'string|required',
+            self::CONSUMER_ID => 'string|required',
             self::TRANSACTION => 'string|required',
         ];
     }
