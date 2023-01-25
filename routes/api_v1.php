@@ -25,6 +25,10 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::resource('tagds', 'Tagds')->only([
             'index', 'update',
         ]);
+
+        Route::resource('consumers', 'Consumers')->only([
+            'index', 'show',
+        ]);
     });
 
     Route::middleware(['auth:api', 'log.user'])->group(function () {

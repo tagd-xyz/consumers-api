@@ -2,6 +2,7 @@
 
 namespace App\Http\V1\Resources\Actor\Consumer;
 
+use App\Http\V1\Resources\Item\Tagd\Collection as TagdCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Single extends JsonResource
@@ -17,6 +18,11 @@ class Single extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'createdAt' => $this->created_at,
+            'tagds' => $this->when(
+                $this->whenLoaded('tagds'),
+                new TagdCollection($this->tagds)
+            ),
         ];
     }
 }
