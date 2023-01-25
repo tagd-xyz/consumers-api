@@ -88,7 +88,13 @@ class Items extends BaseController
         ItemsRepo $itemsRepo,
         string $itemId
     ) {
-        $item = $itemsRepo->findById($itemId);
+        $item = $itemsRepo->findById($itemId, [
+            'relations' => [
+                'tagds',
+                'tagds.consumer',
+                'tagds.reseller',
+            ],
+        ]);
 
         return response()->withData(
             new ItemSingle($item)

@@ -4,4 +4,3 @@ services:
     &tagd-api
     volumes:
       - '../../packages/core:/packages/core'
-      - '../auth.json:/packages/core/auth.json'

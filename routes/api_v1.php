@@ -26,6 +26,9 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
             'index', 'update', 'store',
         ]);
 
+        Route::post('tagds/{id}/expire', 'Tagds@expire');
+        Route::post('tagds/{id}/transfer', 'Tagds@transfer');
+
         Route::resource('consumers', 'Consumers')->only([
             'index', 'show',
         ]);

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\V1\Resources\Item\Item;
+namespace App\Http\V1\Resources\Actor\Reseller;
 
-use App\Http\V1\Resources\Item\Tagd\Collection as TagdCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Single extends JsonResource
+class SingleBrief extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,12 +17,7 @@ class Single extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'type' => $this->type,
-            'description' => $this->description,
-            'properties' => $this->properties,
             'createdAt' => $this->created_at,
-            'tagds' => new TagdCollection($this->whenLoaded('tagds')),
-            // 'rootTagd' => $this->root_tagd,
         ];
     }
 }
