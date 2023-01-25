@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Tagd\Core\Support\Repository\Exceptions\NotFound as RepoNotFoundException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -61,6 +62,7 @@ class Handler extends ExceptionHandler
                     ], 403);
 
                 case ModelNotFoundException::class:
+                case RepoNotFoundException::class:
                 case NotFoundHttpException::class:
                     return response()->withError([
                         'message' => $e->getMessage(),
