@@ -27,7 +27,12 @@ class Single extends JsonResource
             'item' => new ItemSingle($this->whenLoaded('item')),
             'meta' => $this->meta,
             'createdAt' => $this->created_at,
+            'isActive' => $this->is_active,
             'activatedAt' => $this->activated_at,
+            'isExpired' => $this->is_expired,
+            'expiredAt' => $this->expired_at,
+            'isTransferred' => $this->is_transferred,
+            'transferredAt' => $this->transferred_at,
         ];
     }
 }
