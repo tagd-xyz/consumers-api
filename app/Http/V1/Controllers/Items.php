@@ -29,13 +29,22 @@ class Items extends BaseController
             'page' => $request->get(IndexRequest::PAGE, 1),
             'orderBy' => 'created_at',
             'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
-            'relations' => ['tagds'],
+            'relations' => [
+                'tagds',
+                'tagds.consumer',
+            ],
             'filterFunc' => function ($query) use ($retailerId) {
                 return is_null($retailerId)
                     ? $query
                     : $query->where('retailer_id', $retailerId);
             },
         ]);
+
+        // foreach ($items as $item) {
+        //     foreach ($item->tagds as $tagd) {
+        //         dd ($tagd->toArray());
+        //     }
+        // }
 
         return response()->withData(
             new ItemCollection($items)
@@ -48,7 +57,7 @@ class Items extends BaseController
         TagdsRepo $tagdsRepo,
         StoreRequest $request
     ) {
-        $retailerId = $request->get(IndexRequest::RETAILER, null);
+        $retailerId = $request->get(StoreRequest::RETAILER, null);
 
         $item = $itemsRepo->create([
             'retailer_id' => $retailerId,

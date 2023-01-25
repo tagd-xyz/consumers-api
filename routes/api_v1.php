@@ -23,7 +23,7 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         ]);
 
         Route::resource('tagds', 'Tagds')->only([
-            'index', 'update',
+            'index', 'update', 'store',
         ]);
 
         Route::resource('consumers', 'Consumers')->only([
@@ -32,6 +32,10 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
 
         Route::resource('retailers', 'Retailers')->only([
             'index',
+        ]);
+
+        Route::resource('resellers', 'Resellers')->only([
+            'index', 'show',
         ]);
     });
 
