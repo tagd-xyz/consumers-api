@@ -8,7 +8,6 @@ use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
 use Illuminate\Routing\Controller as BaseController;
 use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
-use Tagd\Core\Repositories\Interfaces\Actors\Retailers as RetailersRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
@@ -21,13 +20,9 @@ class Items extends BaseController
      */
     public function index(
         ItemsRepo $itemsRepo,
-        RetailersRepo $retailersRepo,
         IndexRequest $request
     ) {
-        $retailerId = $this->findRetailerByName(
-            $retailersRepo,
-            $request->get(IndexRequest::RETAILER, null)
-        );
+        $retailerId = $request->get(IndexRequest::RETAILER, null);
 
         $items = $itemsRepo->allPaginated([
             'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
@@ -49,15 +44,11 @@ class Items extends BaseController
 
     public function store(
         ItemsRepo $itemsRepo,
-        RetailersRepo $retailersRepo,
         ConsumersRepo $consumersRepo,
         TagdsRepo $tagdsRepo,
         StoreRequest $request
     ) {
-        $retailerId = $this->findRetailerByName(
-            $retailersRepo,
-            $request->get(StoreRequest::RETAILER, null)
-        );
+        $retailerId = $request->get(IndexRequest::RETAILER, null);
 
         $item = $itemsRepo->create([
             'retailer_id' => $retailerId,
@@ -93,16 +84,5 @@ class Items extends BaseController
         return response()->withData(
             new ItemSingle($item)
         );
-    }
-
-    private function findRetailerByName(RetailersRepo $repo, string $name = null): ?string
-    {
-        return is_null($name)
-            ? null
-            : $repo->all([
-                'filterFunc' => function ($query) use ($name) {
-                    return $query->where('name', $name);
-                },
-            ])->first()->id;
     }
 }

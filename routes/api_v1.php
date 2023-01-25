@@ -29,6 +29,10 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::resource('consumers', 'Consumers')->only([
             'index', 'show',
         ]);
+
+        Route::resource('retailers', 'Retailers')->only([
+            'index',
+        ]);
     });
 
     Route::middleware(['auth:api', 'log.user'])->group(function () {
