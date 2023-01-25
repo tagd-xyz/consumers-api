@@ -113,26 +113,37 @@ class Tagds extends BaseController
     ) {
         $tagd = $tagdsRepo->findById($tagdId);
 
-        $tagd->update([
-            'consumer_id' => $request->get(TransferRequest::CONSUMER_ID),
-        ]);
+        $consumerId = $request->get(TransferRequest::CONSUMER_ID);
 
+        // set tagd as transferred
+        // $tagd->update([
+        //     'consumer_id' => $consumerId,
+        // ]);
         $tagd->transfer();
         $tagd->refresh();
 
+        // set tagd siblings as expired
         $siblings = $tagdsRepo->all([
             'filterFunc' => function ($query) use ($tagd) {
                 return $query->where('parent_id', $tagd->parent_id)
                 ->where('id', '<>', $tagd->id);
             },
         ]);
-
         foreach ($siblings as $sibling) {
             $sibling->expire();
         }
 
+        // create new tagd
+        $tagdNew = $tagdsRepo->create([
+            'parent_id' => $tagd->id,
+            'item_id' => $tagd->item_id,
+            'consumer_id' => $consumerId,
+        ]);
+        $tagdNew->activate();
+        $tagdNew->refresh();
+
         return response()->withData(
-            new TagdSingle($tagd)
+            new TagdSingle($tagdNew)
         );
     }
 }
