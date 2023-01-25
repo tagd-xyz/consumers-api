@@ -133,6 +133,11 @@ class Tagds extends BaseController
             $sibling->expire();
         }
 
+        // set parent tagd as transferred
+        if ($tagd->parent_id) {
+            $tagd->parent->transfer();
+        }
+
         // create new tagd
         $tagdNew = $tagdsRepo->create([
             'parent_id' => $tagd->id,
