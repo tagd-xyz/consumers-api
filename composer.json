@@ -32,7 +32,11 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Tagd\\Core\\" : "vendor/tagd/core/src/code/",
+            "Tagd\\Core\\Database\\Seeders\\": "vendor/tagd/core/src/database/seeders/",
+            "Tagd\\Core\\Database\\Factories\\": "vendor/tagd/core/src/database/factories/",
+            "Tagd\\Core\\Tests\\": "vendor/tagd/core/tests/"
         }
     },
     "autoload-dev": {
@@ -41,9 +45,7 @@
             "Tagd\\Core\\" : "/packages/core/src/code/",
             "Tagd\\Core\\Database\\Seeders\\": "/packages/core/src/database/seeders/",
             "Tagd\\Core\\Database\\Factories\\": "/packages/core/src/database/factories/",
-            "Tagd\\Core\\Tests\\": "/packages/core/tests/",
-            "Totally\\Repository\\" : "/packages/repository/src/code/",
-            "Totally\\Repository\\Tests\\": "/packages/repository/tests/"
+            "Tagd\\Core\\Tests\\": "/packages/core/tests/"
         }
     },
     "scripts": {
