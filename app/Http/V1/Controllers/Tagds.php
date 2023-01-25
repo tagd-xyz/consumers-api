@@ -8,6 +8,7 @@ use App\Http\V1\Requests\Tagd\Transfer as TransferRequest;
 use App\Http\V1\Requests\Tagd\Update as UpdateRequest;
 use App\Http\V1\Resources\Item\Tagd\Collection as TagdsCollection;
 use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Routing\Controller as BaseController;
 use Tagd\Core\Repositories\Interfaces\Actors\Resellers as ResellersRepo;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
@@ -79,6 +80,14 @@ class Tagds extends BaseController
             throw new NotFound(new \Exception('Tag not found'));
         }
 
+        if (
+            $parentTagd->isTransferred ||
+            $parentTagd->isExpired ||
+            ! $parentTagd->isActive
+        ) {
+            throw new AuthenticationException('Action not allowed');
+        }
+
         $tagd = $tagdsRepo->create([
             'parent_id' => $parentTagd->id,
             'item_id' => $parentTagd->item_id,
@@ -98,6 +107,14 @@ class Tagds extends BaseController
     ) {
         $tagd = $tagdsRepo->findById($tagdId);
 
+        if (
+            $tagd->isTransferred ||
+            $tagd->isExpired ||
+            ! $tagd->isActive
+        ) {
+            throw new AuthenticationException('Action not allowed');
+        }
+
         $tagd->expire();
         $tagd->refresh();
 
@@ -112,6 +129,14 @@ class Tagds extends BaseController
         string $tagdId
     ) {
         $tagd = $tagdsRepo->findById($tagdId);
+
+        if (
+            $tagd->isTransferred ||
+            $tagd->isExpired ||
+            ! $tagd->isActive
+        ) {
+            throw new AuthenticationException('Action not allowed');
+        }
 
         $consumerId = $request->get(TransferRequest::CONSUMER_ID);
 
