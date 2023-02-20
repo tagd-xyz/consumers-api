@@ -6,12 +6,26 @@ use App\Http\V1\Requests\Item\Index as IndexRequest;
 use App\Http\V1\Requests\Item\Store as StoreRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
+use App\Models\Role;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
-use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
 class Items extends BaseController
 {
+    private function getActors(string $actingAs): Collection
+    {
+        switch ($actingAs) {
+            case 'retailer':
+                return Auth::user()->actorsOfType(Role::RETAILER);
+                break;
+
+            default:
+                return collect([]);
+        }
+    }
+
     /**
      * Get basic status info
      *
@@ -21,29 +35,18 @@ class Items extends BaseController
         ItemsRepo $itemsRepo,
         IndexRequest $request
     ) {
-        $retailerId = $request->get(IndexRequest::RETAILER, null);
+        $actingAs = $request->header('As-Tagd-Actor', Role::RETAILER);
 
-        $items = $itemsRepo->allPaginated([
-            'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
-            'page' => $request->get(IndexRequest::PAGE, 1),
-            'orderBy' => 'created_at',
-            'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
-            'relations' => [
-                'tagds',
-                'tagds.consumer',
-            ],
-            'filterFunc' => function ($query) use ($retailerId) {
-                return is_null($retailerId)
-                    ? $query
-                    : $query->where('retailer_id', $retailerId);
-            },
-        ]);
+        $actors = $this->getActors($actingAs);
 
-        // foreach ($items as $item) {
-        //     foreach ($item->tagds as $tagd) {
-        //         dd ($tagd->toArray());
-        //     }
-        // }
+        $items = $itemsRepo->fetchFor(
+            $actingAs,
+            $actors, [
+                'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
+                'page' => $request->get(IndexRequest::PAGE, 1),
+                'orderBy' => 'created_at',
+                'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
+            ]);
 
         return response()->withData(
             new ItemCollection($items)
@@ -52,26 +55,23 @@ class Items extends BaseController
 
     public function store(
         ItemsRepo $itemsRepo,
-        TagdsRepo $tagdsRepo,
         StoreRequest $request
     ) {
-        $retailerId = $request->get(StoreRequest::RETAILER, null);
+        $user = Auth::user();
 
-        $item = $itemsRepo->create([
-            'retailer_id' => $retailerId,
-            'name' => $request->get(StoreRequest::NAME, 'Unknown'),
-            'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
-            'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
-            'properties' => $request->get(StoreRequest::PROPERTIES, []),
-        ]);
+        // TODO
+        $retailerId = $user->actorsOfType(Role::RETAILER)->pluck('id')->first();
 
-        $tagdsRepo->create([
-            'item_id' => $item->id,
-            'consumer_id' => $request->get(StoreRequest::CONSUMER_ID),
-            'meta' => [
-                'transaction' => $request->get(StoreRequest::TRANSACTION, ''),
-            ],
-        ]);
+        $item = $itemsRepo
+            ->createForConsumer(
+                $request->get(StoreRequest::CONSUMER),
+                $request->get(StoreRequest::TRANSACTION, ''),
+                $retailerId, [
+                    'name' => $request->get(StoreRequest::NAME, 'Unknown'),
+                    'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
+                    'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
+                    'properties' => $request->get(StoreRequest::PROPERTIES, []),
+                ]);
 
         return response()->withData(
             new ItemSingle($item)

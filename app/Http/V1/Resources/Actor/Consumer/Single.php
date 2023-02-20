@@ -17,7 +17,7 @@ class Single extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'email' => $this->email,
             'createdAt' => $this->created_at,
             'tagds' => $this->when(
                 $this->whenLoaded('tagds'),

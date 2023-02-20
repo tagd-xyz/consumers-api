@@ -6,8 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Store extends FormRequest
 {
-    public const RETAILER = 'retailer';
-
     public const NAME = 'name';
 
     public const DESCRIPTION = 'description';
@@ -16,7 +14,7 @@ class Store extends FormRequest
 
     public const PROPERTIES = 'properties';
 
-    public const CONSUMER_ID = 'consumerId';
+    public const CONSUMER = 'consumer';
 
     public const TRANSACTION = 'transaction';
 
@@ -28,12 +26,11 @@ class Store extends FormRequest
     public function rules()
     {
         return [
-            self::RETAILER => 'string|required',
             self::NAME => 'string|required',
             self::DESCRIPTION => 'string|required',
             self::TYPE => 'string|required',
             self::PROPERTIES => 'array',
-            self::CONSUMER_ID => 'string|required',
+            self::CONSUMER => 'string|required',
             self::TRANSACTION => 'string|required',
         ];
     }

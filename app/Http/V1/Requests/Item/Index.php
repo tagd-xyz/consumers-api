@@ -12,8 +12,6 @@ class Index extends FormRequest
 
     public const DIRECTION = 'direction';
 
-    public const RETAILER = 'retailer';
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,7 +23,6 @@ class Index extends FormRequest
             self::PER_PAGE => 'numeric|min:1|max:9999',
             self::PAGE => 'numeric|min:1|max:9999',
             self::DIRECTION => 'string|in:asc,desc',
-            self::RETAILER => 'string',
         ];
     }
 }

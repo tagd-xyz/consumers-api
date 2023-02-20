@@ -19,6 +19,7 @@ class Single extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'type' => $this->type,
+            'retailer' => $this->retailer->name,
             'description' => $this->description,
             'properties' => $this->properties,
             'createdAt' => $this->created_at,
