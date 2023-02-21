@@ -12,6 +12,8 @@ class Role extends Model
 
     public const CONSUMER = 'consumer';
 
+    public const UNKNOWN = 'unknown';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +23,12 @@ class Role extends Model
         'actor_type',
         'actor_id',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Get the user who has this role
@@ -37,4 +45,10 @@ class Role extends Model
     {
         return $this->morphTo();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSORS
+    |--------------------------------------------------------------------------
+    */
 }

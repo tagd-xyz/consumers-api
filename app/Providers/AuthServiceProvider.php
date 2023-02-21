@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\ExpectsActAs;
 use App\Models\User;
 use App\Support\FirebaseToken;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,7 +17,10 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @var array<class-string, class-string>
      */
-    protected $policies = [];
+    protected $policies = [
+        \Tagd\Core\Models\Item\Item::class => \App\Policies\Item\Item::class,
+        \Tagd\Core\Models\Actor\Consumer::class => \App\Policies\Actor\Consumer::class,
+    ];
 
     /**
      * Register any application services.
@@ -38,13 +43,27 @@ class AuthServiceProvider extends ServiceProvider
         Auth::viaRequest('firebase', function (Request $request) {
             $token = $request->bearerToken();
 
-            $payload = (new FirebaseToken($token))->verify(
-                config('services.firebase.project_id')
-            );
+            if ($token) {
+                $payload = (new FirebaseToken($token))->verify(
+                    config('services.firebase.project_id')
+                );
 
-            $user = User::createFromFirebaseToken($payload);
+                $user = User::createFromFirebaseToken($payload);
 
-            return $user;
+                $actAs = ExpectsActAs::parse($request);
+                if ($actAs) {
+                    $can = $user->canActAsTypeAndIdOf(
+                        $actAs['name'],
+                        $actAs['id']
+                    );
+
+                    throw_if(! $can, new BadRequestHttpException(
+                        'Invalid ' . ExpectsActAs::HEADER_KEY . ' header'
+                    ));
+                }
+
+                return $user;
+            }
         });
     }
 }

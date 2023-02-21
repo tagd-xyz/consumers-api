@@ -19,7 +19,7 @@ class Store extends FormRequest
     {
         return [
             self::TAGD_SLUG => 'string|required',
-            self::RESELLER_ID => 'string|required',
+            // self::RESELLER_ID => 'string|required',
         ];
     }
 }

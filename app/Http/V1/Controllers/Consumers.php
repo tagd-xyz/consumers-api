@@ -5,10 +5,10 @@ namespace App\Http\V1\Controllers;
 use App\Http\V1\Requests\Consumer\Index as IndexRequest;
 use App\Http\V1\Resources\Actor\Consumer\Collection as ConsumerCollection;
 use App\Http\V1\Resources\Actor\Consumer\Single as ConsumerSingle;
-use Illuminate\Routing\Controller as BaseController;
+use Tagd\Core\Models\Actor\Consumer as ConsumerModel;
 use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
 
-class Consumers extends BaseController
+class Consumers extends Controller
 {
     /**
      * Get basic status info
@@ -19,6 +19,10 @@ class Consumers extends BaseController
         ConsumersRepo $consumersRepo,
         IndexRequest $request
     ) {
+        $this->authorize(
+            'index', [ConsumerModel::class, $this->actingAs($request)]
+        );
+
         $consumers = $consumersRepo->allPaginated([
             'perPage' => $request->get(IndexRequest::PER_PAGE, 500),
             'page' => $request->get(IndexRequest::PAGE, 1),

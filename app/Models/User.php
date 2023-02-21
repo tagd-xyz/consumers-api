@@ -71,6 +71,7 @@ class User extends Authenticatable
         return $this
             ->roles()
             ->with('actor')
+            ->get()
             ->map(function ($role) {
                 return $role->actor;
             });
@@ -105,6 +106,19 @@ class User extends Authenticatable
     {
         return $this->roles()->get()->contains(function ($v, $k) use ($actor) {
             return $v->actor_id == $actor->id;
+        });
+    }
+
+    /**
+     * checks whether or not can act as the given actor type / id
+     *
+     * @param  Retailer|Reseller|Consumer  $actor
+     * @return bool
+     */
+    public function canActAsTypeAndIdOf(string $type, string $id): bool
+    {
+        return $this->roles()->get()->contains(function ($v, $k) use ($type, $id) {
+            return $v->actor_type == $type && $v->actor_id == $id;
         });
     }
 

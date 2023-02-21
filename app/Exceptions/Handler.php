@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagd\Core\Support\Repository\Exceptions\NotFound as RepoNotFoundException;
@@ -56,6 +57,11 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (\Exception $e, $request) {
             switch (get_class($e)) {
+                case BadRequestHttpException::class:
+                    return response()->withError([
+                        'message' => $e->getMessage(),
+                    ], 400);
+
                 case ExpiredException::class:
                 case AuthenticationException::class:
                 case AccessDeniedHttpException::class:

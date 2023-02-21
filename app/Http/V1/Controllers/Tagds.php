@@ -8,14 +8,35 @@ use App\Http\V1\Requests\Tagd\Transfer as TransferRequest;
 use App\Http\V1\Requests\Tagd\Update as UpdateRequest;
 use App\Http\V1\Resources\Item\Tagd\Collection as TagdsCollection;
 use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
+use App\Models\Role;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Routing\Controller as BaseController;
-use Tagd\Core\Repositories\Interfaces\Actors\Resellers as ResellersRepo;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
-use Tagd\Core\Support\Repository\Exceptions\NotFound;
 
 class Tagds extends BaseController
 {
+    private function getActors(string $actingAs): Collection
+    {
+        switch ($actingAs) {
+            case 'retailer':
+                return Auth::user()->actorsOfType(Role::RETAILER);
+                break;
+
+            case 'reseller':
+                return Auth::user()->actorsOfType(Role::RESELLER);
+                break;
+
+            case 'consumer':
+                return Auth::user()->actorsOfType(Role::CONSUMER);
+                break;
+
+            default:
+                return collect([]);
+        }
+    }
+
     /**
      * Get basic status info
      *
@@ -62,39 +83,29 @@ class Tagds extends BaseController
 
     public function store(
         TagdsRepo $tagdsRepo,
-        ResellersRepo $resellersRepo,
         StoreRequest $request
     ) {
-        $reseller = $resellersRepo->findById(
-            $request->get(StoreRequest::RESELLER_ID)
-        );
+        $actingAs = $request->header('As-Tagd-Actor', Role::UNKNOWN);
+
+        // TODO: Move to middleware
+        if (Role::UNKNOWN == $actingAs) {
+            throw new AuthenticationException('Please specify a As-Tagd-Actor header');
+        }
+
+        if (Role::RESELLER != $actingAs) {
+            throw new AuthenticationException('Not allowed to store tagds');
+        }
+
+        $actors = $this->getActors(Role::RESELLER);
+        if ($actors->isEmpty()) {
+            throw new AuthenticationException('Not allowed to store tagds');
+        }
 
         $parentTagdSlug = $request->get(StoreRequest::TAGD_SLUG, null);
-        $parentTagd = $tagdsRepo->all([
-            'filterFunc' => function ($query) use ($parentTagdSlug) {
-                return $query->where('slug', $parentTagdSlug);
-            },
-        ])->first();
-
-        if (is_null($parentTagd)) {
-            throw new NotFound(new \Exception('Tag not found'));
-        }
-
-        if (
-            $parentTagd->isTransferred ||
-            $parentTagd->isExpired ||
-            ! $parentTagd->isActive
-        ) {
-            throw new AuthenticationException('Action not allowed');
-        }
-
-        $tagd = $tagdsRepo->create([
-            'parent_id' => $parentTagd->id,
-            'item_id' => $parentTagd->item_id,
-            'reseller_id' => $reseller->id,
-        ]);
-        $tagd->activate();
-        $tagd->refresh();
+        $tagd = $tagdsRepo->createForResale(
+            $actors,
+            $parentTagdSlug
+        );
 
         return response()->withData(
             new TagdSingle($tagd)

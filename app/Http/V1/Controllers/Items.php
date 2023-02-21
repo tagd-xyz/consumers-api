@@ -6,26 +6,16 @@ use App\Http\V1\Requests\Item\Index as IndexRequest;
 use App\Http\V1\Requests\Item\Store as StoreRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
-use App\Models\Role;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Tagd\Core\Models\Actor\Consumer;
+use Tagd\Core\Models\Actor\Reseller;
+use Tagd\Core\Models\Actor\Retailer;
+use Tagd\Core\Models\Item\Item;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
 
-class Items extends BaseController
+class Items extends Controller
 {
-    private function getActors(string $actingAs): Collection
-    {
-        switch ($actingAs) {
-            case 'retailer':
-                return Auth::user()->actorsOfType(Role::RETAILER);
-                break;
-
-            default:
-                return collect([]);
-        }
-    }
-
     /**
      * Get basic status info
      *
@@ -35,18 +25,40 @@ class Items extends BaseController
         ItemsRepo $itemsRepo,
         IndexRequest $request
     ) {
-        $actingAs = $request->header('As-Tagd-Actor', Role::RETAILER);
+        $actingAs = $this->actingAs($request);
 
-        $actors = $this->getActors($actingAs);
+        $this->authorize(
+            'index', [Item::class, $actingAs]
+        );
 
-        $items = $itemsRepo->fetchFor(
-            $actingAs,
-            $actors, [
-                'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
-                'page' => $request->get(IndexRequest::PAGE, 1),
-                'orderBy' => 'created_at',
-                'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
-            ]);
+        $items = $itemsRepo->allPaginated([
+            'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
+            'page' => $request->get(IndexRequest::PAGE, 1),
+            'orderBy' => 'created_at',
+            'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
+            'relations' => [
+                'retailer',
+                'tagds',
+                'tagds.consumer',
+            ],
+            'filterFunc' => function ($query) use ($actingAs) {
+                switch(get_class($actingAs)) {
+                    case Retailer::class:
+                        $query->where('retailer_id', $actingAs->id);
+                        break;
+                    case Reseller::class:
+                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
+                            $builder->where('reseller_id', $actingAs->id);
+                        });
+                        break;
+                    case Consumer::class:
+                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
+                            $builder->where('consumer_id', $actingAs->id);
+                        });
+                        break;
+                }
+            },
+        ]);
 
         return response()->withData(
             new ItemCollection($items)
@@ -57,16 +69,17 @@ class Items extends BaseController
         ItemsRepo $itemsRepo,
         StoreRequest $request
     ) {
-        $user = Auth::user();
+        $actingAs = $this->actingAs($request);
 
-        // TODO
-        $retailerId = $user->actorsOfType(Role::RETAILER)->pluck('id')->first();
+        $this->authorize(
+            'store', [Item::class, $actingAs]
+        );
 
         $item = $itemsRepo
             ->createForConsumer(
                 $request->get(StoreRequest::CONSUMER),
                 $request->get(StoreRequest::TRANSACTION, ''),
-                $retailerId, [
+                $actingAs->id, [
                     'name' => $request->get(StoreRequest::NAME, 'Unknown'),
                     'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
                     'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
@@ -79,6 +92,7 @@ class Items extends BaseController
     }
 
     public function show(
+        Request $request,
         ItemsRepo $itemsRepo,
         string $itemId
     ) {
@@ -89,6 +103,10 @@ class Items extends BaseController
                 'tagds.reseller',
             ],
         ]);
+
+        $this->authorize(
+            'show', [$item, $this->actingAs($request)]
+        );
 
         return response()->withData(
             new ItemSingle($item)

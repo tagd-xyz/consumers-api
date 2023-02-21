@@ -1,6 +1,7 @@
 <?php
 
 // use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\ExpectsActAs;
 use Illuminate\Support\Facades\Route;
 
 Route::namespace('\App\Http\V1\Controllers')->group(function () {
@@ -14,16 +15,8 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::get('status', 'Status@index')
             ->name('status');
 
-        Route::resource('tagds', 'Tagds')->only([
-            'index', 'update', 'store',
-        ]);
-
         Route::post('tagds/{id}/expire', 'Tagds@expire');
         Route::post('tagds/{id}/transfer', 'Tagds@transfer');
-
-        Route::resource('consumers', 'Consumers')->only([
-            'index', 'show',
-        ]);
 
         Route::resource('retailers', 'Retailers')->only([
             'index',
@@ -35,13 +28,21 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
     });
 
     Route::middleware(['auth:api'])->group(function () {
-        // --------------------------------------------------------------------
-        // Items
-        // --------------------------------------------------------------------
+        Route::get('me', 'Me@show');
 
-        Route::resource('items', 'Items')->only([
-            'index', 'store', 'show',
-        ]);
+        Route::middleware([ExpectsActAs::class])->group(function () {
+            Route::resource('items', 'Items')->only([
+                'index', 'store', 'show',
+            ]);
+
+            Route::resource('tagds', 'Tagds')->only([
+                'index', 'update', 'store',
+            ]);
+
+            Route::resource('consumers', 'Consumers')->only([
+                'index', 'show',
+            ]);
+        });
     });
 
     // Route::get('/me', function () {
