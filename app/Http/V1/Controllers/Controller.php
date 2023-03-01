@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tagd\Core\Models\Actor\Consumer;
 use Tagd\Core\Models\Actor\Reseller;
 use Tagd\Core\Models\Actor\Retailer;
+use App\Models\Role;
 
 class Controller extends BaseController
 {
@@ -23,16 +24,16 @@ class Controller extends BaseController
 
     protected function actingAs(Request $request): Retailer|Reseller|Consumer
     {
-        $parsed = ExpectsActAs::parse($request);
+        // $parsed = ExpectsActAs::parse($request);
 
-        throw_if(! $parsed, new BadRequestHttpException(
-            'Invalid ' . ExpectsActAs::HEADER_KEY . ' header'
-        ));
+        // throw_if(! $parsed, new BadRequestHttpException(
+        //     'Invalid ' . ExpectsActAs::HEADER_KEY . ' header'
+        // ));
 
-        extract($parsed);
+        // extract($parsed);
 
         $user = Auth::user();
 
-        return $user->actorsOfType($name)->where('id', $id)->first();
+        return $user->actorsOfType(Role::CONSUMER)->first();
     }
 }

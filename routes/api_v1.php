@@ -15,34 +15,38 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::get('status', 'Status@index')
             ->name('status');
 
-        Route::post('tagds/{id}/expire', 'Tagds@expire');
-        Route::post('tagds/{id}/transfer', 'Tagds@transfer');
+        // Route::post('tagds/{id}/expire', 'Tagds@expire');
+        // Route::post('tagds/{id}/transfer', 'Tagds@transfer');
 
-        Route::resource('retailers', 'Retailers')->only([
-            'index',
-        ]);
+        // Route::resource('retailers', 'Retailers')->only([
+        //     'index',
+        // ]);
 
-        Route::resource('resellers', 'Resellers')->only([
-            'index', 'show',
-        ]);
+        // Route::resource('resellers', 'Resellers')->only([
+        //     'index', 'show',
+        // ]);
     });
 
     Route::middleware(['auth:api'])->group(function () {
         Route::get('me', 'Me@show');
 
-        Route::middleware([ExpectsActAs::class])->group(function () {
-            Route::resource('items', 'Items')->only([
-                'index', 'store', 'show',
-            ]);
+        Route::resource('items', 'Items')->only([
+            'index',
+        ]);
 
-            Route::resource('tagds', 'Tagds')->only([
-                'index', 'update', 'store',
-            ]);
+        // Route::middleware([ExpectsActAs::class])->group(function () {
+        //     Route::resource('items', 'Items')->only([
+        //         'index', 'store', 'show',
+        //     ]);
 
-            Route::resource('consumers', 'Consumers')->only([
-                'index', 'show',
-            ]);
-        });
+        //     Route::resource('tagds', 'Tagds')->only([
+        //         'index', 'update', 'store',
+        //     ]);
+
+        //     Route::resource('consumers', 'Consumers')->only([
+        //         'index', 'show',
+        //     ]);
+        // });
     });
 
     // Route::get('/me', function () {

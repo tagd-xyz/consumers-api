@@ -13,6 +13,7 @@ use Tagd\Core\Models\Actor\Reseller;
 use Tagd\Core\Models\Actor\Retailer;
 use Tagd\Core\Models\Item\Item;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
+use Tagd\Core\Repositories\Interfaces\Actors\Consumers as ConsumersRepo;
 
 class Items extends Controller
 {
@@ -42,21 +43,9 @@ class Items extends Controller
                 'tagds.consumer',
             ],
             'filterFunc' => function ($query) use ($actingAs) {
-                switch(get_class($actingAs)) {
-                    case Retailer::class:
-                        $query->where('retailer_id', $actingAs->id);
-                        break;
-                    case Reseller::class:
-                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
-                            $builder->where('reseller_id', $actingAs->id);
-                        });
-                        break;
-                    case Consumer::class:
-                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
-                            $builder->where('consumer_id', $actingAs->id);
-                        });
-                        break;
-                }
+                $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
+                    $builder->where('consumer_id', $actingAs->id);
+                });
             },
         ]);
 
