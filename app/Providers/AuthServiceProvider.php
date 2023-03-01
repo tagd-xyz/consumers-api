@@ -2,14 +2,12 @@
 
 namespace App\Providers;
 
-use App\Http\Middleware\ExpectsActAs;
 use App\Models\User;
 use App\Support\FirebaseToken;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tagd\Core\Repositories\Interfaces\Actors\Consumers;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthServiceProvider extends ServiceProvider
 {
