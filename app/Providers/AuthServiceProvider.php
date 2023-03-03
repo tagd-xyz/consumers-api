@@ -18,7 +18,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \Tagd\Core\Models\Item\Item::class => \App\Policies\Item\Item::class,
-        \Tagd\Core\Models\Actor\Consumer::class => \App\Policies\Actor\Consumer::class,
     ];
 
     /**

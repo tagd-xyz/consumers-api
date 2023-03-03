@@ -5,10 +5,7 @@ namespace App\Policies\Item;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
-use Tagd\Core\Models\Actor\Actor as ActorModel;
 use Tagd\Core\Models\Actor\Consumer as ConsumerModel;
-use Tagd\Core\Models\Actor\Reseller as ResellerModel;
-use Tagd\Core\Models\Actor\Retailer as RetailerModel;
 use Tagd\Core\Models\Item\Item as ItemModel;
 
 class Item
@@ -19,10 +16,10 @@ class Item
      * Determine whether the user can list.
      *
      * @param  User  $user
-     * @param  ActorModel  $actor
+     * @param  ConsumerModel  $consumer
      * @return mixed
      */
-    public function index(User $user, ActorModel $actor)
+    public function index(User $user, ConsumerModel $consumer)
     {
         return Response::allow();
     }
@@ -32,42 +29,12 @@ class Item
      *
      * @param  User  $user
      * @param  ItemModel  $item
-     * @param  ActorModel  $actor
+     * @param  ConsumerModel  $consumer
      * @return mixed
      */
-    public function show(User $user, ItemModel $item, ActorModel $actor)
+    public function show(User $user, ItemModel $item, ConsumerModel $consumer)
     {
         // TODO
-        switch (get_class($actor)) {
-            case RetailerModel::class:
-                break;
-            case ResellerModel::class:
-                break;
-            case ConsumerModel::class:
-                break;
-        }
-
         return Response::allow();
-    }
-
-    /**
-     * Determine whether the user can store.
-     *
-     * @param  User  $user
-     * @param  ActorModel  $actor
-     * @return mixed
-     */
-    public function store(User $user, ActorModel $actor)
-    {
-        // TODO
-        switch (get_class($actor)) {
-            case RetailerModel::class:
-                return Response::allow();
-                break;
-            case ResellerModel::class:
-            case ConsumerModel::class:
-            default:
-                return Response::deny();
-        }
     }
 }
