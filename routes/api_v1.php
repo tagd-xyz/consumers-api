@@ -16,5 +16,10 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::resource('items', 'Items')->only([
             'index', 'show',
         ]);
+
+        Route::post('tagds/{id}/activate', 'Tagds@activate');
+        Route::resource('tagds', 'Tagds')->only([
+            'index', 'show',
+        ]);
     });
 });
