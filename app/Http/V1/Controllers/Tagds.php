@@ -81,14 +81,14 @@ class Tagds extends Controller
     }
 
     /**
-     * Activate a tagd
+     * Set as available for resale
      *
      * @param  Request  $request
      * @param  TagdsRepo  $tagdsRepo
      * @param  string  $tagdId
      * @return JsonResponse
      */
-    public function activate(
+    public function enableForResale(
         Request $request,
         TagdsRepo $tagdsRepo,
         string $tagdId
@@ -96,11 +96,38 @@ class Tagds extends Controller
         $tagd = $tagdsRepo->findById($tagdId);
 
         $this->authorize(
-            'activate',
+            'enableForResale',
             [$tagd, $this->actingAs($request)]
         );
 
-        $tagd->activate();
+        $tagd = $tagdsRepo->setAsAvailableForResale($tagd, true);
+
+        return response()->withData(
+            new TagdSingle($tagd)
+        );
+    }
+
+    /**
+     * Set as not available for resale
+     *
+     * @param  Request  $request
+     * @param  TagdsRepo  $tagdsRepo
+     * @param  string  $tagdId
+     * @return JsonResponse
+     */
+    public function disableForResale(
+        Request $request,
+        TagdsRepo $tagdsRepo,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        $this->authorize(
+            'disableForResale',
+            [$tagd, $this->actingAs($request)]
+        );
+
+        $tagd = $tagdsRepo->setAsAvailableForResale($tagd, false);
 
         return response()->withData(
             new TagdSingle($tagd)

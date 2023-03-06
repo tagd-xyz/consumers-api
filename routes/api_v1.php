@@ -17,7 +17,8 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
             'index', 'show',
         ]);
 
-        Route::post('tagds/{id}/activate', 'Tagds@activate');
+        Route::post('tagds/{id}/enableForResale', 'Tagds@enableForResale');
+        Route::post('tagds/{id}/disableForResale', 'Tagds@disableForResale');
         Route::resource('tagds', 'Tagds')->only([
             'index', 'show',
         ]);

@@ -39,14 +39,28 @@ class Tagd
     }
 
     /**
-     * Determine whether the user can activate.
+     * Determine whether the user can set as available for resale.
      *
      * @param  User  $user
      * @param  TagdModel  $tagd
      * @param  ConsumerModel  $consumer
      * @return mixed
      */
-    public function activate(User $user, TagdModel $tagd, ConsumerModel $consumer)
+    public function enableForResale(User $user, TagdModel $tagd, ConsumerModel $consumer)
+    {
+        // TODO
+        return Response::allow();
+    }
+
+    /**
+     * Determine whether the user can set as not available for resale.
+     *
+     * @param  User  $user
+     * @param  TagdModel  $tagd
+     * @param  ConsumerModel  $consumer
+     * @return mixed
+     */
+    public function disableForResale(User $user, TagdModel $tagd, ConsumerModel $consumer)
     {
         // TODO
         return Response::allow();
