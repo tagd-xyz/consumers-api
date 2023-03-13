@@ -2,13 +2,12 @@
 
 namespace App\Providers;
 
-use App\Http\Middleware\ExpectsActAs;
 use App\Models\User;
 use App\Support\FirebaseToken;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tagd\Core\Repositories\Interfaces\Actors\Consumers;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -19,7 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \Tagd\Core\Models\Item\Item::class => \App\Policies\Item\Item::class,
-        \Tagd\Core\Models\Actor\Consumer::class => \App\Policies\Actor\Consumer::class,
+        \Tagd\Core\Models\Item\Tagd::class => \App\Policies\Item\Tagd::class,
     ];
 
     /**
@@ -36,11 +35,13 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Consumers $consumers)
     {
         $this->registerPolicies();
 
-        Auth::viaRequest('firebase', function (Request $request) {
+        Auth::viaRequest('firebase', function (
+            Request $request
+        ) use ($consumers) {
             $token = $request->bearerToken();
 
             if ($token) {
@@ -50,17 +51,9 @@ class AuthServiceProvider extends ServiceProvider
 
                 $user = User::createFromFirebaseToken($payload);
 
-                $actAs = ExpectsActAs::parse($request);
-                if ($actAs) {
-                    $can = $user->canActAsTypeAndIdOf(
-                        $actAs['name'],
-                        $actAs['id']
-                    );
+                $consumer = $consumers->assertExists($user->id);
 
-                    throw_if(! $can, new BadRequestHttpException(
-                        'Invalid ' . ExpectsActAs::HEADER_KEY . ' header'
-                    ));
-                }
+                $user->startActingAs($consumer);
 
                 return $user;
             }

@@ -3,188 +3,134 @@
 namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\Tagd\Index as IndexRequest;
-use App\Http\V1\Requests\Tagd\Store as StoreRequest;
-use App\Http\V1\Requests\Tagd\Transfer as TransferRequest;
-use App\Http\V1\Requests\Tagd\Update as UpdateRequest;
-use App\Http\V1\Resources\Item\Tagd\Collection as TagdsCollection;
+use App\Http\V1\Resources\Item\Tagd\Collection as TagdCollection;
 use App\Http\V1\Resources\Item\Tagd\Single as TagdSingle;
-use App\Models\Role;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Tagd\Core\Models\Item\Tagd;
 use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
-class Tagds extends BaseController
+class Tagds extends Controller
 {
-    private function getActors(string $actingAs): Collection
-    {
-        switch ($actingAs) {
-            case 'retailer':
-                return Auth::user()->actorsOfType(Role::RETAILER);
-                break;
-
-            case 'reseller':
-                return Auth::user()->actorsOfType(Role::RESELLER);
-                break;
-
-            case 'consumer':
-                return Auth::user()->actorsOfType(Role::CONSUMER);
-                break;
-
-            default:
-                return collect([]);
-        }
-    }
-
     /**
-     * Get basic status info
+     * Get tagd list
      *
-     * @return Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index(
         TagdsRepo $tagdsRepo,
         IndexRequest $request
     ) {
+        $actingAs = $this->actingAs($request);
+
+        $this->authorize(
+            'index', [Tagd::class, $actingAs]
+        );
+
         $tagds = $tagdsRepo->allPaginated([
             'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
             'page' => $request->get(IndexRequest::PAGE, 1),
             'orderBy' => 'created_at',
             'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
-            'relations' => ['consumer', 'item'],
-            // 'filterFunc' => function ($query) use ($retailerId) {
-            //     return $query->where('retailer_id', $retailerId);
-            // },
-        ]);
-
-        return response()->withData(
-            new TagdsCollection($tagds)
-        );
-    }
-
-    public function update(
-        TagdsRepo $tagdsRepo,
-        UpdateRequest $request,
-        string $tagdId
-    ) {
-        $tagd = $tagdsRepo->findById($tagdId);
-
-        if ($request->has(UpdateRequest::IS_ACTIVE)) {
-            if ($request->get(UpdateRequest::IS_ACTIVE)) {
-                $tagd->activate();
-                $tagd->refresh();
-            }
-        }
-
-        return response()->withData(
-            new TagdSingle($tagd)
-        );
-    }
-
-    public function store(
-        TagdsRepo $tagdsRepo,
-        StoreRequest $request
-    ) {
-        $actingAs = $request->header('As-Tagd-Actor', Role::UNKNOWN);
-
-        // TODO: Move to middleware
-        if (Role::UNKNOWN == $actingAs) {
-            throw new AuthenticationException('Please specify a As-Tagd-Actor header');
-        }
-
-        if (Role::RESELLER != $actingAs) {
-            throw new AuthenticationException('Not allowed to store tagds');
-        }
-
-        $actors = $this->getActors(Role::RESELLER);
-        if ($actors->isEmpty()) {
-            throw new AuthenticationException('Not allowed to store tagds');
-        }
-
-        $parentTagdSlug = $request->get(StoreRequest::TAGD_SLUG, null);
-        $tagd = $tagdsRepo->createForResale(
-            $actors,
-            $parentTagdSlug
-        );
-
-        return response()->withData(
-            new TagdSingle($tagd)
-        );
-    }
-
-    public function expire(
-        TagdsRepo $tagdsRepo,
-        string $tagdId
-    ) {
-        $tagd = $tagdsRepo->findById($tagdId);
-
-        if (
-            $tagd->isTransferred ||
-            $tagd->isExpired ||
-            ! $tagd->isActive
-        ) {
-            throw new AuthenticationException('Action not allowed');
-        }
-
-        $tagd->expire();
-        $tagd->refresh();
-
-        return response()->withData(
-            new TagdSingle($tagd)
-        );
-    }
-
-    public function transfer(
-        TagdsRepo $tagdsRepo,
-        TransferRequest $request,
-        string $tagdId
-    ) {
-        $tagd = $tagdsRepo->findById($tagdId);
-
-        if (
-            $tagd->isTransferred ||
-            $tagd->isExpired ||
-            ! $tagd->isActive
-        ) {
-            throw new AuthenticationException('Action not allowed');
-        }
-
-        $consumerId = $request->get(TransferRequest::CONSUMER_ID);
-
-        // set tagd as transferred
-        // $tagd->update([
-        //     'consumer_id' => $consumerId,
-        // ]);
-        $tagd->transfer();
-        $tagd->refresh();
-
-        // set tagd siblings as expired
-        $siblings = $tagdsRepo->all([
-            'filterFunc' => function ($query) use ($tagd) {
-                return $query->where('parent_id', $tagd->parent_id)
-                ->where('id', '<>', $tagd->id);
+            'relations' => [
+                'item',
+                'item.retailer',
+                'consumer',
+                'reseller',
+            ],
+            'filterFunc' => function ($query) use ($actingAs) {
+                $query->where('consumer_id', $actingAs->id);
             },
         ]);
-        foreach ($siblings as $sibling) {
-            $sibling->expire();
-        }
-
-        // set parent tagd as transferred
-        if ($tagd->parent_id) {
-            $tagd->parent->transfer();
-        }
-
-        // create new tagd
-        $tagdNew = $tagdsRepo->create([
-            'parent_id' => $tagd->id,
-            'item_id' => $tagd->item_id,
-            'consumer_id' => $consumerId,
-        ]);
-        $tagdNew->activate();
-        $tagdNew->refresh();
 
         return response()->withData(
-            new TagdSingle($tagdNew)
+            new TagdCollection($tagds)
+        );
+    }
+
+    /**
+     * Shows a tagd
+     *
+     * @param  Request  $request
+     * @param  Tagd\Core\Repositories\Interfaces\Items\Tagds  $tagdsRepo
+     * @param  string  $tagdId
+     * @return JsonResponse
+     */
+    public function show(
+        Request $request,
+        TagdsRepo $tagdsRepo,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId, [
+            'relations' => [
+                'item',
+                'item.retailer',
+                'consumer',
+                'reseller',
+            ],
+        ]);
+
+        $this->authorize(
+            'show',
+            [$tagd, $this->actingAs($request)]
+        );
+
+        return response()->withData(
+            new TagdSingle($tagd)
+        );
+    }
+
+    /**
+     * Set as available for resale
+     *
+     * @param  Request  $request
+     * @param  TagdsRepo  $tagdsRepo
+     * @param  string  $tagdId
+     * @return JsonResponse
+     */
+    public function enableForResale(
+        Request $request,
+        TagdsRepo $tagdsRepo,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        $this->authorize(
+            'enableForResale',
+            [$tagd, $this->actingAs($request)]
+        );
+
+        $tagd = $tagdsRepo->setAsAvailableForResale($tagd, true);
+
+        return response()->withData(
+            new TagdSingle($tagd)
+        );
+    }
+
+    /**
+     * Set as not available for resale
+     *
+     * @param  Request  $request
+     * @param  TagdsRepo  $tagdsRepo
+     * @param  string  $tagdId
+     * @return JsonResponse
+     */
+    public function disableForResale(
+        Request $request,
+        TagdsRepo $tagdsRepo,
+        string $tagdId
+    ) {
+        $tagd = $tagdsRepo->findById($tagdId);
+
+        $this->authorize(
+            'disableForResale',
+            [$tagd, $this->actingAs($request)]
+        );
+
+        $tagd = $tagdsRepo->setAsAvailableForResale($tagd, false);
+
+        return response()->withData(
+            new TagdSingle($tagd)
         );
     }
 }

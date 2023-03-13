@@ -3,14 +3,10 @@
 namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\Item\Index as IndexRequest;
-use App\Http\V1\Requests\Item\Store as StoreRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Tagd\Core\Models\Actor\Consumer;
-use Tagd\Core\Models\Actor\Reseller;
-use Tagd\Core\Models\Actor\Retailer;
 use Tagd\Core\Models\Item\Item;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
 
@@ -42,52 +38,14 @@ class Items extends Controller
                 'tagds.consumer',
             ],
             'filterFunc' => function ($query) use ($actingAs) {
-                switch(get_class($actingAs)) {
-                    case Retailer::class:
-                        $query->where('retailer_id', $actingAs->id);
-                        break;
-                    case Reseller::class:
-                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
-                            $builder->where('reseller_id', $actingAs->id);
-                        });
-                        break;
-                    case Consumer::class:
-                        $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
-                            $builder->where('consumer_id', $actingAs->id);
-                        });
-                        break;
-                }
+                $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
+                    $builder->where('consumer_id', $actingAs->id);
+                });
             },
         ]);
 
         return response()->withData(
             new ItemCollection($items)
-        );
-    }
-
-    public function store(
-        ItemsRepo $itemsRepo,
-        StoreRequest $request
-    ) {
-        $actingAs = $this->actingAs($request);
-
-        $this->authorize(
-            'store', [Item::class, $actingAs]
-        );
-
-        $item = $itemsRepo
-            ->createForConsumer(
-                $request->get(StoreRequest::CONSUMER),
-                $request->get(StoreRequest::TRANSACTION, ''),
-                $actingAs->id, [
-                    'name' => $request->get(StoreRequest::NAME, 'Unknown'),
-                    'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
-                    'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
-                    'properties' => $request->get(StoreRequest::PROPERTIES, []),
-                ]);
-
-        return response()->withData(
-            new ItemSingle($item)
         );
     }
 
@@ -98,6 +56,7 @@ class Items extends Controller
     ) {
         $item = $itemsRepo->findById($itemId, [
             'relations' => [
+                'retailer',
                 'tagds',
                 'tagds.consumer',
                 'tagds.reseller',
@@ -105,7 +64,8 @@ class Items extends Controller
         ]);
 
         $this->authorize(
-            'show', [$item, $this->actingAs($request)]
+            'show',
+            [$item, $this->actingAs($request)]
         );
 
         return response()->withData(

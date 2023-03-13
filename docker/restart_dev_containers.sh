@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PRIMARY_CONTAINER=tagd-api
+PRIMARY_CONTAINER=tagd-con-api
 PACKAGES_DIR=../../../packages
 COMPOSER_DIR=..
 

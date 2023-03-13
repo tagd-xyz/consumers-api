@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PRIMARY_CONTAINER=tagd-api
+PRIMARY_CONTAINER=tagd-con-api
 
 install_docker_toolkit () {
   export DTK_VERSION=1.5.14
