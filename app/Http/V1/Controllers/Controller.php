@@ -2,15 +2,14 @@
 
 namespace App\Http\V1\Controllers;
 
-use App\Http\Middleware\ExpectsActAs;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tagd\Core\Models\Actor\Consumer;
 use Tagd\Core\Models\Actor\Reseller;
 use Tagd\Core\Models\Actor\Retailer;
@@ -22,18 +21,27 @@ class Controller extends BaseController
         DispatchesJobs,
         ValidatesRequests;
 
+    /**
+     * Returns the first actor of the authenticated user
+     *
+     * @param  Request  $request
+     * @return Retailer|Reseller|Consumer
+     */
     protected function actingAs(Request $request): Retailer|Reseller|Consumer
     {
-        // $parsed = ExpectsActAs::parse($request);
+        return $this
+            ->authUser()
+            ->actorsOfType(Role::CONSUMER)
+            ->first();
+    }
 
-        // throw_if(! $parsed, new BadRequestHttpException(
-        //     'Invalid ' . ExpectsActAs::HEADER_KEY . ' header'
-        // ));
-
-        // extract($parsed);
-
-        $user = Auth::user();
-
-        return $user->actorsOfType(Role::CONSUMER)->first();
+    /**
+     * Authenticated user
+     *
+     * @return User
+     */
+    protected function authUser(): User
+    {
+        return Auth::user();
     }
 }

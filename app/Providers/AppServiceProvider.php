@@ -34,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Relation::enforceMorphMap([
+            // 'App\Models\User' => 'App\Models\User',
             \App\Models\Role::RETAILER => 'Tagd\Core\Models\Actor\Retailer',
             \App\Models\Role::RESELLER => 'Tagd\Core\Models\Actor\Reseller',
             \App\Models\Role::CONSUMER => 'Tagd\Core\Models\Actor\Consumer',
