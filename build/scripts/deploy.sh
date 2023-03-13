@@ -10,7 +10,7 @@ if [[ ${ENV} == "production" ]]; then
   image_tag=${CI_COMMIT_TAG}
   release="api"
   kube_config=${KUBE_CONFIG_PROD}
-  env_secret="api-env"
+  env_secret="con-api-env"
   migrations_secret="api-migrations-env"
   service_account_name="tagd-api"
 else
