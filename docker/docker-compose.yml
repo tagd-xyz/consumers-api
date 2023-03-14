@@ -7,29 +7,29 @@ services:
     restart: unless-stopped
     command: /proxy_startup.sh
     ports:
-      - '9092:80'
+      - 9092:80
     volumes:
-      - '../:/app'
-      - './startup/proxy.sh:/proxy_startup.sh'
+      - ../:/app
+      - ./startup/proxy.sh:/proxy_startup.sh
     environment:
-      - 'VIRTUAL_HOST=tagd-con-api.${DEV_DOMAIN}'
-      - 'DTK_VERSION=${DTK_VERSION}'
-      - 'FASTCGI_PASS=tagd-con-api:9000'
+      - VIRTUAL_HOST=tagd-con-api.${DEV_DOMAIN}
+      - DTK_VERSION=${DTK_VERSION}
+      - FASTCGI_PASS=tagd-con-api:9000
   tagd-con-api:
     &tagd-con-api
-    image: 'docker.totallydev.com/tagd/docker/api/8.1-buster:dev'
+    image: docker.totallydev.com/tagd/docker/api/8.1-buster:dev
     container_name: tagd-con-api
     hostname: tagd-con-api
     restart: unless-stopped
     depends_on:
       - tagd-con-api-proxy
     volumes:
-      - '~/.ssh:/var/www/.ssh'
-      - '~/.composer:/var/www/.composer'
-      - '../:/app'
+      - ~/.ssh:/var/www/.ssh
+      - ~/.composer:/var/www/.composer
+      - ../:/app
     environment:
-      - 'WWW_DATA_UID=${USER_ID}'
-      - 'WWW_DATA_GUID=${GROUP_ID}'
+      - WWW_DATA_UID=${USER_ID}
+      - WWW_DATA_GUID=${GROUP_ID}
       - COMPOSER_INSTALL=1
 networks:
   default:

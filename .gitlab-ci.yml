@@ -2,7 +2,7 @@ image: alpine:latest
 
 variables:
   GITLAB_HOST: gitlab.totallydev.com
-  DTK_VERSION: 1.6.5
+  DTK_VERSION: 1.7.11
   DTK_HOME: /opt/dtk
   QA_DOMAIN: tagd-api.qa.tclstaging.com
   UAT_DOMAIN: tagd-api.uat.tclstaging.com
@@ -138,7 +138,7 @@ build:proxy:
   script:
     - ./build/scripts/deploy.sh
   variables:
-    HELM_CHART_REPO: https://${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}@gitlab.totallydev.com/helm/tagd.git
+    HELM_CHART_REPO: https://${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}@gitlab.totallydev.com/helm/tagd/api.git
     HELM_CHART_BRANCH: main
 
 deploy:qa:
