@@ -2,7 +2,7 @@ image: alpine:latest
 
 variables:
   GITLAB_HOST: gitlab.totallydev.com
-  DTK_VERSION: 1.6.5
+  DTK_VERSION: 1.7.11
   DTK_HOME: /opt/dtk
   QA_DOMAIN: tagd-api.qa.tclstaging.com
   UAT_DOMAIN: tagd-api.uat.tclstaging.com
