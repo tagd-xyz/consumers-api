@@ -49,10 +49,10 @@ quality:
   extends:
     - .shared_runners
   image: composer:latest
-  # cache:
-  #   key: tagd-api-${ENV}
-  #   paths:
-  #     - vendor/
+  cache:
+    key: tagd-con-api-${ENV}
+    paths:
+      - vendor/
   before_script:
     - ./build/scripts/install_dtk.sh
   artifacts:
