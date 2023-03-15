@@ -4,8 +4,8 @@ variables:
   GITLAB_HOST: gitlab.totallydev.com
   DTK_VERSION: 1.7.11
   DTK_HOME: /opt/dtk
-  QA_DOMAIN: tagd-api.qa.tclstaging.com
-  UAT_DOMAIN: tagd-api.uat.tclstaging.com
+  QA_DOMAIN: tagd-con-api.qa.tclstaging.com
+  UAT_DOMAIN: tagd-con-api.uat.tclstaging.com
   PRODUCTION_DOMAIN: api.tagd.com
   PRODUCTION_BRANCH: 1.x.x
   PRODUCTION_TAG_REGEX: '1\.(0|[1-9]\d*)\.(0|[1-9]\d*)$'
@@ -49,10 +49,10 @@ quality:
   extends:
     - .shared_runners
   image: composer:latest
-  # cache:
-  #   key: tagd-api-${ENV}
-  #   paths:
-  #     - vendor/
+  cache:
+    key: tagd-con-api-${ENV}
+    paths:
+      - vendor/
   before_script:
     - ./build/scripts/install_dtk.sh
   artifacts:
