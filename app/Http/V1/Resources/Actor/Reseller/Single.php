@@ -18,6 +18,8 @@ class Single extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'logo' => $this->logo,
+            'website' => $this->website,
             'createdAt' => $this->created_at,
             'tagds' => new TagdCollection($this->whenLoaded('tagds')),
         ];

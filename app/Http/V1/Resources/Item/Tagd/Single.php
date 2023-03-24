@@ -24,6 +24,7 @@ class Single extends JsonResource
             // TODO: 'consumer' => new ConsumerSingle($this->whenLoaded('consumer')),
             'consumer' => new ConsumerSingle($this->whenLoaded('consumer')),
             'reseller' => new ResellerSingle($this->whenLoaded('reseller')),
+            'auctions' => new Collection($this->whenLoaded('auctions')),
             'item' => new ItemSingle($this->whenLoaded('item')),
             'meta' => $this->meta,
             'isAvailableForResale' => $this->is_available_for_resale,
