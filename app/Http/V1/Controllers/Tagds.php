@@ -67,6 +67,8 @@ class Tagds extends Controller
                 'item.retailer',
                 'consumer',
                 'reseller',
+                'auctions',
+                'auctions.reseller',
             ],
         ]);
 
