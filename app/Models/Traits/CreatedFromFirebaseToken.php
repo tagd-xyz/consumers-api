@@ -14,19 +14,11 @@ trait CreatedFromFirebaseToken
             'firebase_id' => $payload->user_id,
         ]);
 
-        if ($self->email != $payload->email ?? null) {
+        if ($self->wasRecentlyCreated === true) {
             $self->email = $payload->email;
-        }
-
-        if ($self->name != $payload->name ?? null) {
             $self->name = $payload->name;
+            $self->save();
         }
-
-        if ($self->wasRecentlyCreated) {
-            //TODO assign consumer roles to claim tagds
-        }
-
-        $self->save(); // will save only if fields have changed
 
         return $self;
     }
