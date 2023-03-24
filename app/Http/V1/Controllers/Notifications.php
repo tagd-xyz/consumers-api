@@ -20,9 +20,6 @@ class Notifications extends Controller
         //     'index', [NotificationModel::class, $actingAs]
         // );
 
-        // \Log::info(get_class($actingAs));
-        // \Log::info($actingAs);
-
         $notifications = $actingAs->notifications;
 
         return response()->withData(
