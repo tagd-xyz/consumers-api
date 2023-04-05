@@ -4,10 +4,6 @@ namespace App\Models\Traits;
 
 trait CreatedFromFirebaseToken
 {
-    /**
-     * @param  object  $payload
-     * @return static
-     */
     public static function createFromFirebaseToken(object $payload): static
     {
         $self = static::firstOrCreate([

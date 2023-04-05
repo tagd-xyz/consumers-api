@@ -16,16 +16,12 @@ use Tagd\Core\Models\Actor\Retailer;
 
 class Controller extends BaseController
 {
-    use
-        AuthorizesRequests,
+    use AuthorizesRequests,
         DispatchesJobs,
         ValidatesRequests;
 
     /**
      * Returns the first actor of the authenticated user
-     *
-     * @param  Request  $request
-     * @return Retailer|Reseller|Consumer
      */
     protected function actingAs(Request $request): Retailer|Reseller|Consumer
     {
@@ -37,8 +33,6 @@ class Controller extends BaseController
 
     /**
      * Authenticated user
-     *
-     * @return User
      */
     protected function authUser(): User
     {

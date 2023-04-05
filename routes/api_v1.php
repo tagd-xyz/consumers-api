@@ -26,5 +26,11 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
         Route::resource('tagds', 'Tagds')->only([
             'index', 'show',
         ]);
+
+        Route::post('resale-access-requests/{id}/reject', 'ResaleAccessRequests@reject');
+        Route::post('resale-access-requests/{id}/approve', 'ResaleAccessRequests@approve');
+        Route::resource('resale-access-requests', 'ResaleAccessRequests')->only([
+            'show',
+        ]);
     });
 });

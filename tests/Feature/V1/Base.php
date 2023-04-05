@@ -8,8 +8,6 @@ abstract class Base extends TestCase
 
     /**
      * setUp any test
-     *
-     * @return void
      */
     protected function setUp(): void
     {
