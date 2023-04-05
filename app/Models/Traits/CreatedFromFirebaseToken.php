@@ -6,13 +6,11 @@ trait CreatedFromFirebaseToken
 {
     public static function createFromFirebaseToken(object $payload): static
     {
-        $self = static::firstOrCreate([
+        return static::firstOrCreate([
             'firebase_id' => $payload->user_id,
             'email' => $payload->email,
         ], [
             'name' => $payload->name ?? $payload->email,
         ]);
-
-        return $self;
     }
 }
