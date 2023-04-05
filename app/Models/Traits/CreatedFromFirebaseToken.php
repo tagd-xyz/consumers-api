@@ -8,13 +8,10 @@ trait CreatedFromFirebaseToken
     {
         $self = static::firstOrCreate([
             'firebase_id' => $payload->user_id,
+            'email' => $payload->email,
+        ], [
+            'name' => $payload->name ?? $payload->email,
         ]);
-
-        if ($self->wasRecentlyCreated === true) {
-            $self->email = $payload->email;
-            $self->name = $payload->name;
-            $self->save();
-        }
 
         return $self;
     }
