@@ -19,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         \Tagd\Core\Models\Item\Item::class => \App\Policies\Item\Item::class,
         \Tagd\Core\Models\Item\Tagd::class => \App\Policies\Item\Tagd::class,
+        \Tagd\Core\Models\Resale\AccessRequest::class => \App\Policies\Resale\AccessRequest::class,
     ];
 
     /**
