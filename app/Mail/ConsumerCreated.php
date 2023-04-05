@@ -18,7 +18,6 @@ class ConsumerCreated extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param  Consumer  $consumer
      * @return void
      */
     public function __construct(Consumer $consumer)

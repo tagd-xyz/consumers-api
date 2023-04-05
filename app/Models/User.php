@@ -63,8 +63,6 @@ class User extends Authenticatable
 
     /**
      * Get the actors for this user
-     *
-     * @return Collection
      */
     public function actors(): Collection
     {
@@ -79,9 +77,6 @@ class User extends Authenticatable
 
     /**
      * Get the actors for this user
-     *
-     * @param  string  $type
-     * @return Collection
      */
     public function actorsOfType(string $type): Collection
     {
@@ -98,9 +93,6 @@ class User extends Authenticatable
 
     /**
      * checks whether or not can act as the given actor
-     *
-     * @param  Retailer|Reseller|Consumer  $actor
-     * @return bool
      */
     public function canActAs(Retailer|Reseller|Consumer $actor): bool
     {
@@ -113,7 +105,6 @@ class User extends Authenticatable
      * checks whether or not can act as the given actor type / id
      *
      * @param  Retailer|Reseller|Consumer  $actor
-     * @return bool
      */
     public function canActAsTypeAndIdOf(string $type, string $id): bool
     {
@@ -124,9 +115,6 @@ class User extends Authenticatable
 
     /**
      * checks whether or not can act as the given actor type
-     *
-     * @param  string  $type
-     * @return bool
      */
     public function canActAsTypeOf(string $type): bool
     {
@@ -137,9 +125,6 @@ class User extends Authenticatable
 
     /**
      * start acting as the given actor
-     *
-     * @param  Retailer|Reseller|Consumer  $actor
-     * @return static
      */
     public function startActingAs(Retailer|Reseller|Consumer $actor): static
     {

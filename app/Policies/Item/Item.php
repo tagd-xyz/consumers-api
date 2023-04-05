@@ -15,8 +15,6 @@ class Item
     /**
      * Determine whether the user can list.
      *
-     * @param  User  $user
-     * @param  ConsumerModel  $consumer
      * @return mixed
      */
     public function index(User $user, ConsumerModel $consumer)
@@ -27,9 +25,6 @@ class Item
     /**
      * Determine whether the user can show details.
      *
-     * @param  User  $user
-     * @param  ItemModel  $item
-     * @param  ConsumerModel  $consumer
      * @return mixed
      */
     public function show(User $user, ItemModel $item, ConsumerModel $consumer)

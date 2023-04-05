@@ -34,14 +34,9 @@ class FirebaseToken
 
     /**
      * Firebase ID token.
-     *
-     * @var string
      */
     private string $token;
 
-    /**
-     * @param  string  $token
-     */
     public function __construct(string $token)
     {
         $this->token = $token;
@@ -50,8 +45,6 @@ class FirebaseToken
     /**
      * Verify the ID token and return the decoded payload.
      *
-     * @param  string  $projectId
-     * @return object
      *
      * @throws UnexpectedValueException|Exception
      */
@@ -74,8 +67,6 @@ class FirebaseToken
 
     /**
      * Fetch JWT public keys.
-     *
-     * @return array
      */
     private function getPublicKeys(): array
     {
@@ -101,9 +92,6 @@ class FirebaseToken
     /**
      * Validate decoded payload.
      *
-     * @param  object  $payload
-     * @param  string  $projectId
-     * @return void
      *
      * @throws UnexpectedValueException
      *

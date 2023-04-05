@@ -12,11 +12,6 @@ class AccessRequest
 {
     use HandlesAuthorization; // HandlesGenericUsers;
 
-    /**
-     * @param  ConsumerModel  $consumer
-     * @param  AccessRequestModel  $accessRequest
-     * @return bool
-     */
     protected function isOwner(
         ConsumerModel $consumer,
         AccessRequestModel $accessRequest
@@ -27,9 +22,6 @@ class AccessRequest
     /**
      * Determine whether the user can show the access request.
      *
-     * @param  User  $user
-     * @param  AccessRequestModel  $accessRequest
-     * @param  ConsumerModel  $consumer
      * @return mixed
      */
     public function show(
@@ -45,10 +37,6 @@ class AccessRequest
     /**
      * Determine whether the user can approve the access request.
      *
-     * @param  User  $user
-     * @param  AccessRequestModel  $accessRequest
-     * @param  string  $code
-     * @param  ConsumerModel  $consumer
      * @return mixed
      */
     public function approve(
@@ -67,9 +55,6 @@ class AccessRequest
     /**
      * Determine whether the user can reject the access request.
      *
-     * @param  User  $user
-     * @param  AccessRequestModel  $accessRequest
-     * @param  ConsumerModel  $consumer
      * @return mixed
      */
     public function reject(

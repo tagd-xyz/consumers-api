@@ -13,9 +13,6 @@ trait Helpers
 {
     /**
      * current user roles
-     *
-     * @param  User  $user
-     * @return Collection
      */
     protected function currentRoles(User $user): Collection
     {
@@ -34,7 +31,6 @@ trait Helpers
     /**
      * show current user roles
      *
-     * @param  User  $user
      * @return void
      */
     protected function showCurrentRoles(User $user)
@@ -47,8 +43,6 @@ trait Helpers
 
     /**
      * prompt for role
-     *
-     * @return string
      */
     protected function askForRole(): string
     {
@@ -64,13 +58,10 @@ trait Helpers
 
     /**
      * prompt for actor
-     *
-     * @param  string  $role
-     * @return Retailer|Reseller|Consumer
      */
     protected function askForActor(string $role): Retailer|Reseller|Consumer
     {
-        switch($role) {
+        switch ($role) {
             case Role::RETAILER:
                 $actors = Retailer::all();
                 break;

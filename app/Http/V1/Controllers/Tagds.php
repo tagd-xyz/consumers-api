@@ -51,9 +51,7 @@ class Tagds extends Controller
     /**
      * Shows a tagd
      *
-     * @param  Request  $request
      * @param  Tagd\Core\Repositories\Interfaces\Items\Tagds  $tagdsRepo
-     * @param  string  $tagdId
      * @return JsonResponse
      */
     public function show(
@@ -85,9 +83,6 @@ class Tagds extends Controller
     /**
      * Set as available for resale
      *
-     * @param  Request  $request
-     * @param  TagdsRepo  $tagdsRepo
-     * @param  string  $tagdId
      * @return JsonResponse
      */
     public function enableForResale(
@@ -112,9 +107,6 @@ class Tagds extends Controller
     /**
      * Set as not available for resale
      *
-     * @param  Request  $request
-     * @param  TagdsRepo  $tagdsRepo
-     * @param  string  $tagdId
      * @return JsonResponse
      */
     public function disableForResale(
