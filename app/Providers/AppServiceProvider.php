@@ -40,8 +40,8 @@ class AppServiceProvider extends ServiceProvider
             \App\Models\Role::CONSUMER => 'Tagd\Core\Models\Actor\Consumer',
         ]);
 
-        Log::withContext([
-            'app_name' => config('app.name'),
-        ]);
+        // Log::withContext([
+        //     'app_name' => config('app.name'),
+        // ]);
     }
 }
