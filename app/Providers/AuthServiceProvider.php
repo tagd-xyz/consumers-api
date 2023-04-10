@@ -50,13 +50,19 @@ class AuthServiceProvider extends ServiceProvider
                     config('services.firebase.project_id')
                 );
 
-                $user = User::createFromFirebaseToken($payload);
+                if (
+                    config('services.firebase.tenant_id') == $payload->firebase->tenant
+                ) {
+                    $user = User::createFromFirebaseToken($payload);
 
-                $consumer = $consumers->assertExists($user->email);
+                    $consumer = $consumers->assertExists($user->email);
 
-                $user->startActingAs($consumer);
+                    $user->startActingAs($consumer);
 
-                return $user;
+                    return $user;
+                } else {
+                    return null;
+                }
             }
         });
     }
