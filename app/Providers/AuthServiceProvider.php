@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\User;
 use App\Support\FirebaseToken;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Tagd\Core\Repositories\Interfaces\Actors\Consumers;
+use Tagd\Core\Models\Actor\Consumer;
+use Tagd\Core\Repositories\Interfaces\Users\Users;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -36,34 +36,28 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Consumers $consumers)
+    public function boot(Users $users)
     {
         $this->registerPolicies();
 
-        Auth::viaRequest('firebase', function (
-            Request $request
-        ) use ($consumers) {
+        Auth::viaRequest('firebase', function (Request $request) use ($users) {
+            $projectId = config('services.firebase.project_id');
+            $tenantId = config('services.firebase.tenant_id');
+
             $token = $request->bearerToken();
 
             if ($token) {
-                $payload = (new FirebaseToken($token))->verify(
-                    config('services.firebase.project_id')
-                );
+                $payload = (new FirebaseToken($token))->verify($projectId);
 
-                if (
-                    config('services.firebase.tenant_id') == $payload->firebase->tenant
-                ) {
-                    $user = User::createFromFirebaseToken($payload);
-
-                    $consumer = $consumers->assertExists($user->email);
-
-                    $user->startActingAs($consumer);
+                if ($tenantId == $payload->firebase->tenant) {
+                    $user = $users->createFromFirebaseToken($payload);
+                    $users->assertIsActingAs($user, Consumer::class);
 
                     return $user;
-                } else {
-                    return null;
                 }
             }
+
+            return null;
         });
     }
 }

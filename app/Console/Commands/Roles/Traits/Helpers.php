@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Roles\Traits;
 
-use App\Models\Role;
-use App\Models\User;
 use Illuminate\Support\Collection;
 use Tagd\Core\Models\Actor\Consumer;
 use Tagd\Core\Models\Actor\Reseller;
 use Tagd\Core\Models\Actor\Retailer;
+use Tagd\Core\Models\User\Role;
+use Tagd\Core\Models\User\User;
 
 trait Helpers
 {

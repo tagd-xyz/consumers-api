@@ -2,11 +2,11 @@
 
 namespace App\Policies\Item;
 
-use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 use Tagd\Core\Models\Actor\Consumer as ConsumerModel;
 use Tagd\Core\Models\Item\Tagd as TagdModel;
+use Tagd\Core\Models\User\User;
 
 class Tagd
 {

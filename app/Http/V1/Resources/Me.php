@@ -3,6 +3,7 @@
 namespace App\Http\V1\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Tagd\Core\Models\User\Role;
 
 class Me extends JsonResource
 {
@@ -23,7 +24,7 @@ class Me extends JsonResource
                 ];
             })
             ->filter(function ($actor) {
-                return \App\Models\Role::CONSUMER == $actor['type'];
+                return Role::CONSUMER == $actor['type'];
             })
             ->toArray();
 

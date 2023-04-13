@@ -5496,16 +5496,16 @@
         },
         {
             "name": "tagd/core",
-            "version": "0.0.20",
+            "version": "0.0.21",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.totallydev.com/tagd/packages/core.git",
-                "reference": "3bbd7021058cbf9ba44f287c601ba2814d0c152f"
+                "reference": "40fd6a141402fb2b5ce3f22a8585218417854429"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.totallydev.com/api/v4/projects/1094/packages/composer/archives/tagd/core.zip?sha=3bbd7021058cbf9ba44f287c601ba2814d0c152f",
-                "reference": "3bbd7021058cbf9ba44f287c601ba2814d0c152f",
+                "url": "https://gitlab.totallydev.com/api/v4/projects/1094/packages/composer/archives/tagd/core.zip?sha=40fd6a141402fb2b5ce3f22a8585218417854429",
+                "reference": "40fd6a141402fb2b5ce3f22a8585218417854429",
                 "shasum": ""
             },
             "require": {
