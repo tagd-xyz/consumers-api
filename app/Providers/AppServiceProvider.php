@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Tagd\Core\Models\User\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,9 +36,9 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::enforceMorphMap([
             // 'App\Models\User' => 'App\Models\User',
-            \App\Models\Role::RETAILER => 'Tagd\Core\Models\Actor\Retailer',
-            \App\Models\Role::RESELLER => 'Tagd\Core\Models\Actor\Reseller',
-            \App\Models\Role::CONSUMER => 'Tagd\Core\Models\Actor\Consumer',
+            Role::RETAILER => 'Tagd\Core\Models\Actor\Retailer',
+            Role::RESELLER => 'Tagd\Core\Models\Actor\Reseller',
+            Role::CONSUMER => 'Tagd\Core\Models\Actor\Consumer',
         ]);
 
         // Log::withContext([

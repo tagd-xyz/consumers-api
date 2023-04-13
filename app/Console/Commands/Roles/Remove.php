@@ -3,8 +3,8 @@
 namespace App\Console\Commands\Roles;
 
 use App\Console\Commands\Roles\Traits\Helpers;
-use App\Models\User;
 use Illuminate\Console\Command;
+use Tagd\Core\Models\User\User;
 
 class Remove extends Command
 {
