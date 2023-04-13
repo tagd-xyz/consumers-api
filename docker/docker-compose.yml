@@ -33,5 +33,5 @@ services:
       - COMPOSER_INSTALL=1
 networks:
   default:
-    external:
-      name: dev
+    name: dev
+    external: true
