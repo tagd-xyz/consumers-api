@@ -3,12 +3,43 @@
 namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\AccessRequest\Approve as ApproveRequest;
+use App\Http\V1\Resources\Resale\AccessRequest\Collection as AccessRequestCollection;
 use App\Http\V1\Resources\Resale\AccessRequest\Single as AccessRequestSingle;
 use Illuminate\Http\Request;
+use Tagd\Core\Models\Resale\AccessRequest;
 use Tagd\Core\Repositories\Interfaces\Resales\AccessRequests as AccessRequestsRepo;
 
 class ResaleAccessRequests extends Controller
 {
+    /**
+     * List of resale access requests
+     *
+     * @return Illuminate\Http\JsonResponse
+     */
+    public function index(
+        AccessRequestsRepo $accessRequestsRepo,
+        Request $request,
+    ) {
+        $actingAs = $this->actingAs($request);
+
+        $this->authorize(
+            'index', [AccessRequest::class, $actingAs]
+        );
+
+        $accessRequests = $accessRequestsRepo->all([
+            'relations' => [
+                'reseller',
+            ],
+            'filterFunc' => function ($query) use ($actingAs) {
+                $query->where('consumer_id', $actingAs->id);
+            },
+        ]);
+
+        return response()->withData(
+            new AccessRequestCollection($accessRequests)
+        );
+    }
+
     /**
      * Shows an access request
      *
