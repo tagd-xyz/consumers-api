@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class Notifications extends Controller
 {
     /**
-     * Get basic status info
+     * List of notifications
      *
      * @return Illuminate\Http\JsonResponse
      */

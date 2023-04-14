@@ -13,7 +13,7 @@ use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
 class Items extends Controller
 {
     /**
-     * Get basic status info
+     * List of items
      *
      * @return Illuminate\Http\JsonResponse
      */
