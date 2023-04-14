@@ -20,6 +20,16 @@ class AccessRequest
     }
 
     /**
+     * Determine whether the user can list.
+     *
+     * @return mixed
+     */
+    public function index(User $user, ConsumerModel $consumer)
+    {
+        return Response::allow();
+    }
+
+    /**
      * Determine whether the user can show the access request.
      *
      * @return mixed
