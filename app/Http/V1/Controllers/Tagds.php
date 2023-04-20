@@ -35,6 +35,8 @@ class Tagds extends Controller
             'relations' => [
                 'item',
                 'item.retailer',
+                'item.images',
+                'item.images.upload',
                 'consumer',
                 'reseller',
             ],
@@ -63,10 +65,14 @@ class Tagds extends Controller
             'relations' => [
                 'item',
                 'item.retailer',
+                'item.images',
+                'item.images.upload',
                 'consumer',
                 'reseller',
+                'reseller.avatar_uploads',
                 'auctions',
                 'auctions.reseller',
+                'auctions.reseller.avatar_uploads',
             ],
         ]);
 
