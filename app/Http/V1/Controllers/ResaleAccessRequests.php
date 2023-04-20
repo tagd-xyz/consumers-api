@@ -29,6 +29,7 @@ class ResaleAccessRequests extends Controller
         $accessRequests = $accessRequestsRepo->all([
             'relations' => [
                 'reseller',
+                'avatar_uploads',
             ],
             'filterFunc' => function ($query) use ($actingAs) {
                 $query->where('consumer_id', $actingAs->id);
