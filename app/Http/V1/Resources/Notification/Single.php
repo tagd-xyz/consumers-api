@@ -18,6 +18,7 @@ class Single extends JsonResource
             'type' => $this->type,
             'data' => $this->data,
             'createdAt' => $this->created_at,
+            'isRead' => ! is_null($this->read_at),
         ];
     }
 }

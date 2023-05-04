@@ -16,7 +16,9 @@ class Single extends JsonResource
         return [
             'id' => $this->id,
             'url' => $this->url,
+            'portrait' => $this->portrait_url,
             'thumbnail' => $this->preview_url,
+            'square' => $this->square_url,
         ];
     }
 }
