@@ -15,6 +15,7 @@ Route::namespace('\App\Http\V1\Controllers')->group(function () {
 
         Route::resource('notifications', 'Notifications')->only([
             'index',
+            'update',
         ]);
 
         Route::resource('items', 'Items')->only([
