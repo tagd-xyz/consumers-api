@@ -26,6 +26,7 @@ class Single extends JsonResource
             'auctions' => new Collection($this->whenLoaded('auctions')),
             'item' => new ItemSingle($this->whenLoaded('item')),
             'meta' => $this->meta,
+            'trustScore' => $this->trust_score_simple,
             'isAvailableForResale' => $this->is_available_for_resale,
             'createdAt' => $this->created_at,
             'status' => $this->status,
