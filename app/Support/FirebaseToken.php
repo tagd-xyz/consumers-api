@@ -74,7 +74,7 @@ class FirebaseToken
 
         $response = Http::get(self::PUBLIC_KEY_URL);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception('Failed to fetch JWT public keys.');
         }
 
