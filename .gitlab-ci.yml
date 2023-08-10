@@ -20,7 +20,7 @@ stages:
   - build
   - deploy
 
-test:
+.test:
   stage: test
   image: composer:latest
   extends:
@@ -32,8 +32,24 @@ test:
   rules:
     - if: $CI_COMMIT_BRANCH
 
+test:qa:
+  extends: .test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^qa.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-qa
+
+test:uat:
+  extends: .test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^uat.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-uat
+
 # https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
-test-coverage:
+.test-coverage:
   stage: test
   image: composer:latest
   extends:
@@ -50,6 +66,22 @@ test-coverage:
       coverage_report:
         coverage_format: cobertura
         path: coverage.cobertura.xml
+
+test-coverage:qa:
+  extends: .test-coverage
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^qa.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-qa
+
+test-coverage:uat:
+  extends: .test-coverage
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^uat.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-uat
 
 quality:
   stage: test
