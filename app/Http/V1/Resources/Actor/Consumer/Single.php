@@ -11,13 +11,12 @@ class Single extends JsonResource
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array
      */
     public function toArray($request): array
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'email' => $this->email,
             'createdAt' => $this->created_at,
             'tagds' => $this->when(
                 $this->whenLoaded('tagds'),

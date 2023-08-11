@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  tagd-api:
-    &tagd-api
+  tagd-con-api:
+    &tagd-con-api
     volumes:
-      - '../../packages/core:/packages/core'
+      - '../../../packages/core:/packages/core'

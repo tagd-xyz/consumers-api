@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'firebase' => [
+        'project_id' => ENV('FIREBASE_PROJECT_ID'),
+        'tenant_id' => ENV('FIREBASE_TENANT_ID'),
+    ],
 ];

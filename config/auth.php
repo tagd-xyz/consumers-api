@@ -14,7 +14,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
+        // 'guard' => 'web',
         'passwords' => 'users',
     ],
 
@@ -44,8 +45,10 @@ return [
             'provider' => 'users',
         ],
         'api' => [
-            'driver' => 'token',
-            'provider' => 'affiliates',
+            'driver' => 'firebase',
+            'provider' => 'users',
+            // 'driver' => 'token',
+            // 'provider' => 'affiliates',
         ],
     ],
 
@@ -69,12 +72,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-
-        'affiliates' => [
-            'driver' => 'keycloak',
-            'model' => App\Models\Affiliate::class,
+            'model' => Tagd\Core\Models\User\User::class,
         ],
     ],
 

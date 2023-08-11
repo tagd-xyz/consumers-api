@@ -3,17 +3,17 @@
 namespace App\Http\V1\Controllers;
 
 use App\Http\V1\Requests\Item\Index as IndexRequest;
-use App\Http\V1\Requests\Item\Store as StoreRequest;
 use App\Http\V1\Resources\Item\Item\Collection as ItemCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Tagd\Core\Models\Item\Item;
 use Tagd\Core\Repositories\Interfaces\Items\Items as ItemsRepo;
-use Tagd\Core\Repositories\Interfaces\Items\Tagds as TagdsRepo;
 
-class Items extends BaseController
+class Items extends Controller
 {
     /**
-     * Get basic status info
+     * List of items
      *
      * @return Illuminate\Http\JsonResponse
      */
@@ -21,7 +21,11 @@ class Items extends BaseController
         ItemsRepo $itemsRepo,
         IndexRequest $request
     ) {
-        $retailerId = $request->get(IndexRequest::RETAILER, null);
+        $actingAs = $this->actingAs($request);
+
+        $this->authorize(
+            'index', [Item::class, $actingAs]
+        );
 
         $items = $itemsRepo->allPaginated([
             'perPage' => $request->get(IndexRequest::PER_PAGE, 25),
@@ -29,66 +33,40 @@ class Items extends BaseController
             'orderBy' => 'created_at',
             'direction' => $request->get(IndexRequest::DIRECTION, 'asc'),
             'relations' => [
+                'retailer',
                 'tagds',
                 'tagds.consumer',
             ],
-            'filterFunc' => function ($query) use ($retailerId) {
-                return is_null($retailerId)
-                    ? $query
-                    : $query->where('retailer_id', $retailerId);
+            'filterFunc' => function ($query) use ($actingAs) {
+                $query->whereHas('tagds', function (Builder $builder) use ($actingAs) {
+                    $builder->where('consumer_id', $actingAs->id);
+                });
             },
         ]);
-
-        // foreach ($items as $item) {
-        //     foreach ($item->tagds as $tagd) {
-        //         dd ($tagd->toArray());
-        //     }
-        // }
 
         return response()->withData(
             new ItemCollection($items)
         );
     }
 
-    public function store(
-        ItemsRepo $itemsRepo,
-        TagdsRepo $tagdsRepo,
-        StoreRequest $request
-    ) {
-        $retailerId = $request->get(StoreRequest::RETAILER, null);
-
-        $item = $itemsRepo->create([
-            'retailer_id' => $retailerId,
-            'name' => $request->get(StoreRequest::NAME, 'Unknown'),
-            'description' => $request->get(StoreRequest::DESCRIPTION, 'Unknown'),
-            'type' => $request->get(StoreRequest::TYPE, 'Unknown'),
-            'properties' => $request->get(StoreRequest::PROPERTIES, []),
-        ]);
-
-        $tagdsRepo->create([
-            'item_id' => $item->id,
-            'consumer_id' => $request->get(StoreRequest::CONSUMER_ID),
-            'meta' => [
-                'transaction' => $request->get(StoreRequest::TRANSACTION, ''),
-            ],
-        ]);
-
-        return response()->withData(
-            new ItemSingle($item)
-        );
-    }
-
     public function show(
+        Request $request,
         ItemsRepo $itemsRepo,
         string $itemId
     ) {
         $item = $itemsRepo->findById($itemId, [
             'relations' => [
+                'retailer',
                 'tagds',
                 'tagds.consumer',
                 'tagds.reseller',
             ],
         ]);
+
+        $this->authorize(
+            'show',
+            [$item, $this->actingAs($request)]
+        );
 
         return response()->withData(
             new ItemSingle($item)

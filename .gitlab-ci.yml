@@ -2,17 +2,17 @@ image: alpine:latest
 
 variables:
   GITLAB_HOST: gitlab.totallydev.com
-  DTK_VERSION: 1.6.5
+  DTK_VERSION: 1.7.11
   DTK_HOME: /opt/dtk
-  QA_DOMAIN: tagd-api.qa.tclstaging.com
-  UAT_DOMAIN: tagd-api.uat.tclstaging.com
+  QA_DOMAIN: tagd-con-api.qa.tclstaging.com
+  UAT_DOMAIN: tagd-con-api.uat.tclstaging.com
   PRODUCTION_DOMAIN: api.tagd.com
   PRODUCTION_BRANCH: 1.x.x
   PRODUCTION_TAG_REGEX: '1\.(0|[1-9]\d*)\.(0|[1-9]\d*)$'
 
 .shared_runners:
   tags:
-    - totally-uat-k8s
+    - totally-ci
 
 stages:
   - test
@@ -20,7 +20,7 @@ stages:
   - build
   - deploy
 
-unit_test:
+.test:
   stage: test
   image: composer:latest
   extends:
@@ -31,6 +31,57 @@ unit_test:
     - ./build/scripts/test.sh
   rules:
     - if: $CI_COMMIT_BRANCH
+
+test:qa:
+  extends: .test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^qa.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-qa
+
+test:uat:
+  extends: .test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^uat.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-uat
+
+# https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
+.test-coverage:
+  stage: test
+  image: composer:latest
+  extends:
+    - .shared_runners
+  before_script:
+    - ./build/scripts/install_dtk.sh
+  script:
+    - ./build/scripts/test_coverage.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.cobertura.xml
+
+test-coverage:qa:
+  extends: .test-coverage
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^qa.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-qa
+
+test-coverage:uat:
+  extends: .test-coverage
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^uat.*/'
+      when: on_success
+  variables:
+    PACKAGE_CORE_VERSION: dev-uat
 
 quality:
   stage: test
@@ -49,10 +100,10 @@ quality:
   extends:
     - .shared_runners
   image: composer:latest
-  # cache:
-  #   key: tagd-api-${ENV}
-  #   paths:
-  #     - vendor/
+  cache:
+    key: tagd-con-api-${ENV}
+    paths:
+      - vendor/
   before_script:
     - ./build/scripts/install_dtk.sh
   artifacts:
@@ -75,7 +126,8 @@ prepare:qa:
     - if: '$CI_COMMIT_REF_NAME =~ /^qa.*/'
       when: on_success
   variables:
-    COMPOSER_INSTALL_NO_DEV: 0
+    COMPOSER_INSTALL_NO_DEV: 1
+    PACKAGE_CORE_VERSION: dev-qa
 
 prepare:uat:
   extends: .prepare
@@ -86,17 +138,20 @@ prepare:uat:
       when: on_success
   variables:
     COMPOSER_INSTALL_NO_DEV: 1
+    PACKAGE_CORE_VERSION: dev-uat
 
 .build:
   stage: build
-  image: docker:18-git
+  image: docker:20.10.16
   extends:
     - .shared_runners
   variables:
-    DOCKER_HOST: tcp://127.0.0.1:2375
-    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2376
   services:
-    - docker:18-dind
+    - docker:20.10.16-dind
   before_script:
     - ./build/scripts/install_dtk.sh
   rules:
@@ -138,7 +193,7 @@ build:proxy:
   script:
     - ./build/scripts/deploy.sh
   variables:
-    HELM_CHART_REPO: https://${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}@gitlab.totallydev.com/helm/tagd.git
+    HELM_CHART_REPO: https://${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}@gitlab.totallydev.com/helm/tagd/api.git
     HELM_CHART_BRANCH: main
 
 deploy:qa:

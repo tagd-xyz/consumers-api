@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Tagd\Core\Models\User\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,8 +34,15 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
-        Log::withContext([
-            'app_name' => config('app.name'),
+        Relation::enforceMorphMap([
+            // 'App\Models\User' => 'App\Models\User',
+            Role::RETAILER => 'Tagd\Core\Models\Actor\Retailer',
+            Role::RESELLER => 'Tagd\Core\Models\Actor\Reseller',
+            Role::CONSUMER => 'Tagd\Core\Models\Actor\Consumer',
         ]);
+
+        // Log::withContext([
+        //     'app_name' => config('app.name'),
+        // ]);
     }
 }

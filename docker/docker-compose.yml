@@ -1,37 +1,37 @@
 version: '3.3'
 services:
-  tagd-api-proxy:
+  tagd-con-api-proxy:
     image: nginx
-    container_name: tagd-api-proxy
-    hostname: tagd-api-proxy
+    container_name: tagd-con-api-proxy
+    hostname: tagd-con-api-proxy
     restart: unless-stopped
     command: /proxy_startup.sh
     ports:
-      - '8956:80'
+      - 9092:80
     volumes:
-      - '../:/app'
-      - './startup/proxy.sh:/proxy_startup.sh'
+      - ../:/app
+      - ./startup/proxy.sh:/proxy_startup.sh
     environment:
-      - 'VIRTUAL_HOST=tagd-api.${DEV_DOMAIN}'
-      - 'DTK_VERSION=${DTK_VERSION}'
-      - 'FASTCGI_PASS=tagd-api:9000'
-  tagd-api:
-    &tagd-api
-    image: 'docker.totallydev.com/tagd/docker/api/8.1-buster:dev'
-    container_name: tagd-api
-    hostname: tagd-api
+      - VIRTUAL_HOST=tagd-con-api.${DEV_DOMAIN}
+      - DTK_VERSION=${DTK_VERSION}
+      - FASTCGI_PASS=tagd-con-api:9000
+  tagd-con-api:
+    &tagd-con-api
+    image: docker.totallydev.com/tagd/docker/api/8.1-buster:dev
+    container_name: tagd-con-api
+    hostname: tagd-con-api
     restart: unless-stopped
     depends_on:
-      - tagd-api-proxy
+      - tagd-con-api-proxy
     volumes:
-      - '~/.ssh:/var/www/.ssh'
-      - '~/.composer:/var/www/.composer'
-      - '../:/app'
+      - ~/.ssh:/var/www/.ssh
+      - ~/.composer:/var/www/.composer
+      - ../:/app
     environment:
-      - 'WWW_DATA_UID=${USER_ID}'
-      - 'WWW_DATA_GUID=${GROUP_ID}'
+      - WWW_DATA_UID=${USER_ID}
+      - WWW_DATA_GUID=${GROUP_ID}
       - COMPOSER_INSTALL=1
 networks:
   default:
-    external:
-      name: dev
+    name: dev
+    external: true
