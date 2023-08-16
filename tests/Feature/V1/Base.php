@@ -15,6 +15,8 @@ abstract class Base extends TestCase
 
     public const URL_ME = '/api/v1/me';
 
+    public const URL_REF_ITEM_TYPES = '/api/v1/ref/item-types';
+
     /**
      * setUp any test
      */
