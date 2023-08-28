@@ -41,7 +41,8 @@ class Tagds extends Controller
                 'reseller',
             ],
             'filterFunc' => function ($query) use ($actingAs) {
-                $query->where('consumer_id', $actingAs->id);
+                $query->where('consumer_id', $actingAs->id)
+                    ->where('status', '!=', 'returned');
             },
         ]);
 
