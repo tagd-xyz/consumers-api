@@ -4,3 +4,11 @@ services:
     &tagd-con-api
     volumes:
       - '../../../packages/core:/packages/core'
+  tagd-con-api-queue:
+    &tagd-con-api
+    volumes:
+      - '../../../packages/core:/packages/core'
+  tagd-con-api-schedule:
+    &tagd-con-api
+    volumes:
+      - '../../../packages/core:/packages/core'

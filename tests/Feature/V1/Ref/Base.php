@@ -9,5 +9,5 @@ use Tagd\Core\Tests\Traits\NeedsDatabase;
 
 abstract class Base extends \Tests\Feature\V1\Base
 {
-    use NeedsDatabase, NeedsConsumers;
+    use NeedsConsumers, NeedsDatabase;
 }

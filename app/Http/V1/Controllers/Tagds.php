@@ -70,10 +70,10 @@ class Tagds extends Controller
                 'item.images.upload',
                 'consumer',
                 'reseller',
-                'reseller.avatar_uploads',
+                'reseller.images',
                 'auctions',
                 'auctions.reseller',
-                'auctions.reseller.avatar_uploads',
+                'auctions.reseller.images',
             ],
         ]);
 
