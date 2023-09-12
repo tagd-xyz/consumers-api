@@ -42,21 +42,25 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Auth::viaRequest('firebase', function (Request $request) use ($users) {
-            $projectId = config('services.firebase.project_id');
-            $tenantId = config('services.firebase.tenant_id');
+            try {
+                $projectId = config('services.firebase.project_id');
+                $tenantId = config('services.firebase.tenant_id');
 
-            $token = $request->bearerToken();
+                $token = $request->bearerToken();
 
-            if ($token) {
-                $payload = (new FirebaseToken($token))->verify($projectId);
+                if ($token) {
+                    $payload = (new FirebaseToken($token))->verify($projectId);
 
-                if ($tenantId == $payload->firebase->tenant) {
-                    $user = $users->createFromFirebaseToken($payload);
-                    $user->tenant = Role::CONSUMER;
-                    $users->assertIsActingAs($user, Consumer::class);
+                    if ($tenantId == $payload->firebase->tenant) {
+                        $user = $users->createFromFirebaseToken($payload);
+                        $user->tenant = Role::CONSUMER;
+                        $users->assertIsActingAs($user, Consumer::class);
 
-                    return $user;
+                        return $user;
+                    }
                 }
+            } catch (\Throwable $th) {
+                //do nothing
             }
 
             return null;
