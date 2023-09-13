@@ -4,6 +4,7 @@ namespace App\Http\V1\Resources\Item\Tagd;
 
 use App\Http\V1\Resources\Actor\Consumer\SingleBrief as ConsumerSingle;
 use App\Http\V1\Resources\Actor\Reseller\SingleBrief as ResellerSingle;
+use App\Http\V1\Resources\Item\Auction\Collection as AuctionCollection;
 use App\Http\V1\Resources\Item\Item\Single as ItemSingle;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,7 +24,7 @@ class Single extends JsonResource
             // TODO: 'consumer' => new ConsumerSingle($this->whenLoaded('consumer')),
             'consumer' => new ConsumerSingle($this->whenLoaded('consumer')),
             'reseller' => new ResellerSingle($this->whenLoaded('reseller')),
-            'auctions' => new Collection($this->whenLoaded('auctions')),
+            'auctions' => new AuctionCollection($this->whenLoaded('auctions')),
             'item' => new ItemSingle($this->whenLoaded('item')),
             'meta' => $this->meta,
             'trustScore' => $this->trust_score_simple,
