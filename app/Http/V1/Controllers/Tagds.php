@@ -39,6 +39,7 @@ class Tagds extends Controller
                 'item.images.upload',
                 'consumer',
                 'reseller',
+                'auctions',
             ],
             'filterFunc' => function ($query) use ($actingAs) {
                 $query->where('consumer_id', $actingAs->id)
